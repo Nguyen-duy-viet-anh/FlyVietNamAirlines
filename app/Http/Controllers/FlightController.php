@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Flight;
-// use App\Models\Airport;
+use App\Models\Airport;
 use Illuminate\Http\Request;
 
 class FlightController extends Controller
@@ -52,6 +52,8 @@ class FlightController extends Controller
             $title = 'Chọn chuyến bay';
         }
 
-        return view('flights.search', compact('flights', 'step', 'title', 'request', 'outboundFlightId'));
+        $airports = Airport::all();
+
+        return view('flights.search', compact('flights', 'step', 'title', 'request', 'outboundFlightId', 'airports'));
     }
 }

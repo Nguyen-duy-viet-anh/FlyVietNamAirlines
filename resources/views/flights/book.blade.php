@@ -1,6 +1,7 @@
 @extends('layouts.public')
 
 @section('content')
+    @include('layouts.search.booking_stepper', ['currentStep' => 2])
     <div class="grid-2">
         <div class="card">
             <h2>Thông tin cá nhân (Người đặt vé)</h2>

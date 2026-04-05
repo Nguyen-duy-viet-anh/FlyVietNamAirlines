@@ -1,12 +1,19 @@
 @extends('layouts.public')
 
 @section('content')
+    @include('layouts.search.booking_stepper', ['currentStep' => 1])
+
     <div class="container">
-<h2 class="section-title section-title--blue">
+        <!-- Hidden Search Form for 'Edit search' -->
+        <div id="editSearchFormContainer">
+            @include('layouts.search.form_search_box', ['airports' => $airports])
+        </div>
+
+        <h2 class="section-title section-title--blue">
             @if ($step == 'outbound')
-                BƯỚC 1: {{ $title }}
+                {{ $title }}
             @elseif($step == 'return')
-                BƯỚC 2: {{ $title }}
+                {{ $title }}
             @else
                 {{ $title }}
             @endif
@@ -112,4 +119,31 @@
             </div>
         @endif
     </div>
+@section('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnEditSearch = document.getElementById('btnEditSearch');
+            const editFormContainer = document.getElementById('editSearchFormContainer');
+
+            if (btnEditSearch && editFormContainer) {
+                btnEditSearch.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    editFormContainer.classList.toggle('show-edit-form');
+                    
+                    if (editFormContainer.classList.contains('show-edit-form')) {
+                        editFormContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            }
+        });
+
+        function toggleDropdown(id) {
+            const el = document.getElementById(id);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden');
+            }
+        }
+    </script>
 @endsection

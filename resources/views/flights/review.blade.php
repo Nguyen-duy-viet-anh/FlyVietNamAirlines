@@ -1,7 +1,8 @@
 @extends('layouts.public')
 
 @section('content')
-<div class="card" style="max-width:800px; margin:0 auto;">
+    @include('layouts.search.booking_stepper', ['currentStep' => 3])
+    <div class="card" style="max-width:800px; margin:0 auto;">
     <h2 class="text-center section-title--blue">Kiểm tra thông tin Đặt vé</h2>
     <p class="text-center muted">Vui lòng kiểm tra kỹ các thông tin dưới đây trước khi thanh toán.</p>
     <hr class="hr-dashed">

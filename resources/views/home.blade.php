@@ -17,4 +17,10 @@
             @endforeach
         ];
     </script>
+@section('content')
+    @include('layouts.search.popular_offers', ['popularRoutes' => $popularRoutes])
+@endsection
+
+@section('scripts')
+    <script src="{{ asset('js/offers_slider.js') }}"></script>
 @endsection
