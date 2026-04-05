@@ -6,7 +6,7 @@
             <h1 class="hero-title">Tìm kiếm chuyến bay</h1>
             <p class="hero-subtitle">Khám phá hàng ngàn chuyến bay giá tốt nhất</p>
 
-            <x-search.form_search_box :airports="$airports" />
+            @include('layouts.search.form_search_box', ['airports' => $airports])
         </div>
     </section>
 
