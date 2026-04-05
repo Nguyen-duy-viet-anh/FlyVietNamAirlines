@@ -1,0 +1,125 @@
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #f4f7f6;
+    color: #333;
+}
+
+.navbar {
+    background-color: #0056b3;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 0 15px;
+}
+
+.card {
+    background: white;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-primary {
+    background-color: #ff9800;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #e68a00;
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+}
+
+.text-danger {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 5px;
+    display: block;
+}
+
+/* You can add more shared styles below */
+
+/* Utility and migrated inline styles */
+.text-center { text-align: center; }
+.padded-center { text-align: center; padding: 50px 20px; }
+.muted { color: #666; }
+.highlight { color: #ff9800; font-weight: bold; }
+.small-muted { color: #95a5a6; display: block; margin-bottom: 10px; }
+.btn-full { width: 100%; }
+.btn-large { font-size: 18px; }
+.card-inline { margin-bottom: 15px; padding: 0; overflow: hidden; border: 1px solid #ddd; }
+.card-panel { background: #fff; padding: 25px; border-radius: 8px; border: 1px solid #e1e8ed; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; }
+.section-title { border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 15px; }
+.section-title--blue { color: #0056b3; }
+.section-subtitle { color: #7f8c8d; margin-bottom: 10px; margin-top: 20px; }
+.price { color: #ff9800; font-weight: bold; }
+.price-large { color: #e74c3c; font-size: 24px; font-weight: bold; }
+.text-right { text-align: right; }
+.flex-between { display:flex; justify-content: space-between; align-items: center; }
+.grid-two-cols { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+.warning-box { background: #ffdddd; padding: 15px; margin-bottom: 15px; border-left: 4px solid red; }
+.hidden { display: none; }
+.badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.9em; }
+.badge-confirmed { background:#d4edda; color:#155724; }
+.badge-cancelled { background:#f8d7da; color:#721c24; }
+.badge-pending { background:#fff3cd; color:#856404; }
+.danger-text { color: #dc3545; }
+.success-text { color: #28a745; }
+.panel-muted { background: #f4f7f6; padding: 20px; border-radius: 8px; }
+.hr-dashed { border-top: 1px dashed #ccc; margin: 20px 0; }
+
