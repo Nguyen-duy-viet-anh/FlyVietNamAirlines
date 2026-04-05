@@ -6,11 +6,10 @@
             <h1 class="hero-title">Tìm kiếm chuyến bay</h1>
             <p class="hero-subtitle">Khám phá hàng ngàn chuyến bay giá tốt nhất</p>
 
-            <x-form_search_box :airports="$airports" />
+            <x-search.form_search_box :airports="$airports" />
         </div>
     </section>
 
-    {{-- Script để hỗ trợ logic JavaScript (Airport Swap/Exclusion) --}}
     <script>
         window.airportFullOptions = [
             @foreach($airports as $airport)
