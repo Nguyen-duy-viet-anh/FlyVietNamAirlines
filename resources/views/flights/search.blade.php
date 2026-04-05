@@ -9,116 +9,129 @@
             @include('layouts.search.form_search_box', ['airports' => $airports])
         </div>
 
-        <h2 class="section-title section-title--blue">
-            @if ($step == 'outbound')
-                {{ $title }}
-            @elseif($step == 'return')
-                {{ $title }}
-            @else
-                {{ $title }}
-            @endif
-        </h2>
-
-        @if ($step == 'return')
-            <div class="panel-muted">
-                Bạn đã chọn xong Chiều Đi. Vui lòng chọn tiếp Chiều Về dưới đây.
-                <a href="javascript:history.back()" class="danger-text">(Quay lại đổi chiều đi)</a>
-            </div>
-        @endif
-
-        @if ($flights->isEmpty())
-            <div class="alert alert-warning">Rất tiếc, không tìm thấy chuyến bay nào phù hợp.</div>
-        @else
+        @if (!$flights->isEmpty())
             @php
-                // Lấy các tham số cũ trên URL để nối vào nút bấm
+                $firstFlight = $flights->first();
+                $origin = $firstFlight->origin;
+                $destination = $firstFlight->destination;
+                $searchDate = \Carbon\Carbon::parse($step == 'return' ? request('return_date') : request('departure_date', now()));
                 $baseParams = request()->except(['ticket_class', 'outbound_flight_id', 'return_flight_id']);
-            @endphp
+                $dateParamKey = $step == 'return' ? 'return_date' : 'departure_date';
+@endphp
 
-            <div class="flight-list">
-                @foreach ($flights as $flight)
-                    <div class="card card-inline">
+            <div class="departing-header">
+                <h2>{{ $step == 'return' ? 'Returning flight' : 'Departing flight' }}</h2>
+                <div class="route-info">
+                    <span>{{ $origin->city }} ({{ $origin->code }}), {{ $origin->country }}</span>
+                    <i class="fas fa-plane"></i>
+                    <span>{{ $destination->city }} ({{ $destination->code }}), {{ $destination->country }}</span>
+                    <span class="muted">• {{ $searchDate->format('D, d M Y') }}</span>
+                </div>
+            </div>
 
-                        <div class="flex-between" style="padding:20px; cursor:pointer; background:#fff;"
-                            onclick="toggleDropdown('ticket-class-{{ $flight->id }}')">
-                            <div>
-                                <h4 style="margin: 0; color: #333;">{{ $flight->airline->name }}
-                                    ({{ $flight->flight_number }})</h4>
-                                <p style="margin:5px 0 0 0; color:#666;">
-                                    Khởi hành: <strong>{{ $flight->departure_time->format('H:i') }}</strong>
-                                    → Đến: <strong>{{ $flight->arrival_time->format('H:i') }}</strong>
-                                </p>
-                            </div>
+            <div class="filter-bar">
+                <button class="btn-sort"><i class="fas fa-sort-amount-down"></i> Sort by <i class="fas fa-chevron-down"></i></button>
+                <button class="btn-filter"><i class="fas fa-filter"></i> Filter <i class="fas fa-chevron-down"></i></button>
+            </div>
 
-                            <div class="text-right">
-                                <span class="muted small-muted">Giá vé chỉ từ</span>
-                                <h3 class="price" style="margin:0;">{{ number_format($flight->price, 0, ',', '.') }}đ</h3>
-                                <small class="muted" style="font-weight:bold; display:block; margin-top:8px;">Bấm để chọn vé</small>
-                            </div>
-                        </div>
+            <!-- Date Slider Navigation -->
+            @include('layouts.search.date_slider', ['searchDate' => $searchDate, 'baseParams' => $baseParams, 'dateParamKey' => $dateParamKey])
 
-                        <div id="ticket-class-{{ $flight->id }}" class="hidden" style="border-top:1px dashed #ccc; padding:20px; background:#f8f9fa;">
-                            <h4 style="margin-top:0; margin-bottom:15px; color:#2c3e50;">Chọn hạng ghế cho chuyến bay này:</h4>
+            <table class="flight-table">
+                <thead>
+                    <tr>
+                        <th class="details-header">Flight details</th>
+                        <th>Economy</th>
+                        <th class="business-header">Business</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($flights as $flight)
+                        @php
+                            $duration = $flight->departure_time->diff($flight->arrival_time);
+                            $durationStr = $duration->format('%hh%im');
+                        @endphp
+                        <tr>
+                            <td>
+                                <div class="flight-main-info">
+                                    <div class="flight-time-box">
+                                        <span class="time">{{ $flight->departure_time->format('H:i') }}</span>
+                                        <span class="city">{{ $flight->origin->code }}</span>
+                                    </div>
 
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 15px; background: #fff; border: 1px solid #eee; border-radius: 5px;">
-                                <div>
-                                    <strong style="font-size:16px;">Phổ thông (Economy)</strong><br>
-                                    <small class="muted">Hành lý xách tay 7kg</small><br>
-                                    @if ($flight->economy_available <= 10)
-                                        <span style="color:#e74c3c; font-size:12px; font-weight:bold;">Chỉ còn {{ $flight->economy_available }} ghế</span>
-                                    @else
-                                        <span style="color:#27ae60; font-size:12px;">Còn {{ $flight->economy_available }} ghế</span>
-                                    @endif
+                                    <div class="flight-path-viz">
+                                        <div class="viz-line">
+                                            <i class="fas fa-plane"></i>
+                                        </div>
+                                        <span class="viz-duration">{{ $durationStr }}</span>
+                                        <span class="viz-stops">Non-Stop</span>
+                                    </div>
+
+                                    <div class="flight-time-box">
+                                        <span class="time">{{ $flight->arrival_time->format('H:i') }}</span>
+                                        <span class="city">{{ $flight->destination->code }}</span>
+                                    </div>
                                 </div>
-                                <div style="text-align: right;">
-                                    <strong style="color:#ff9800; font-size:18px;">{{ number_format($flight->price, 0, ',', '.') }}đ</strong><br>
-                                    @if ($step == 'outbound')
-                                        <a href="{{ route('flights.search', array_merge($baseParams, ['outbound_flight_id' => $flight->id, 'ticket_class' => 'economy'])) }}"
-                                            class="btn"
-                                            style="background:#e0e0e0; color:#333; padding:8px 15px; margin-top:5px; text-decoration:none; display:inline-block; border-radius:4px;">Chọn chuyến đi</a>
-                                    @else
-                                        <a href="{{ route('flights.book', array_merge($baseParams, ['outbound_flight_id' => $step == 'return' ? $outboundFlightId : $flight->id, 'return_flight_id' => $step == 'return' ? $flight->id : null, 'ticket_class' => 'economy'])) }}"
-                                            class="btn btn-success"
-                                            style="padding: 8px 15px; margin-top: 5px; text-decoration: none; display: inline-block;">Chọn
-                                            & Đặt vé</a>
-                                    @endif
-                                </div>
-                            </div>
 
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #fff; border: 1px solid #eee; border-radius: 5px;">
-                                <div>
-                                    <strong style="color: #d35400; font-size: 16px;">Thương gia (Business)</strong><br>
-                                    <small class="muted">Phòng chờ VIP, Hành lý ký gửi 30kg</small><br>
-                                    @if ($flight->business_available <= 5)
-                                        <span style="color:#e74c3c; font-size:12px; font-weight:bold;">Chỉ còn {{ $flight->business_available }} ghế</span>
-                                    @else
-                                        <span style="color:#27ae60; font-size:12px;">Còn {{ $flight->business_available }} ghế</span>
-                                    @endif
+                                <div class="flight-detail-footer">
+                                    <img src="{{ asset('images/airlines/' . Str::slug($flight->airline->name) . '.png') }}" 
+                                         alt="{{ $flight->airline->name }}" 
+                                         style="width: 20px; height: 20px; flex-shrink: 0;"
+                                         onerror="this.onerror=null; this.src='https://via.placeholder.com/20x20?text=✈️';">
+                                    <span>{{ $flight->airline->name }} {{ $flight->flight_number }}</span>
+                                    <a href="#" class="more-link" onclick="event.preventDefault(); toggleDropdown('details-{{ $flight->id }}')">More details</a>
                                 </div>
-                                <div style="text-align: right;">
-                                    <strong
-                                        style="color: #ff9800; font-size: 18px;">{{ number_format($flight->price * 1.5, 0, ',', '.') }}đ</strong><br>
-                                    @if ($step == 'outbound')
-                                        <a href="{{ route('flights.search', array_merge($baseParams, ['outbound_flight_id' => $flight->id, 'ticket_class' => 'business'])) }}"
-                                            class="btn btn-primary"
-                                            style="padding: 8px 15px; margin-top: 5px; text-decoration: none; display: inline-block;">Chọn
-                                            chuyến đi</a>
-                                    @else
-                                        <a href="{{ route('flights.book', array_merge($baseParams, ['outbound_flight_id' => $step == 'return' ? $outboundFlightId : $flight->id, 'return_flight_id' => $step == 'return' ? $flight->id : null, 'ticket_class' => 'business'])) }}"
-                                            class="btn btn-success"
-                                            style="padding: 8px 15px; margin-top: 5px; text-decoration: none; display: inline-block;">Chọn
-                                            & Đặt vé</a>
-                                    @endif
-                                </div>
-                            </div>
+                            </td>
 
-                        </div>
-                    </div>
-                @endforeach
+                            <td class="fare-col lowest-fare">
+                                @if ($flight->economy_available > 0)
+                                    @php
+                                        $targetRoute = $step == 'outbound' ? 'flights.search' : 'flights.book';
+                                        $finalParams = array_merge($baseParams, [
+                                            'outbound_flight_id' => $step == 'return' ? $outboundFlightId : $flight->id,
+                                            'return_flight_id' => $step == 'return' ? $flight->id : null,
+                                            'ticket_class' => 'economy'
+                                        ]);
+                                    @endphp
+                                    <a href="{{ route($targetRoute, $finalParams) }}" class="fare-select-btn">
+                                        <div class="fare-radio-ui"></div>
+                                        <span class="fare-price-display">{{ number_format($flight->price, 0, ',', '.') }}đ</span>
+                                        <span class="fare-seats-left">{{ $flight->economy_available }} Seats left</span>
+                                    </a>
+                                    <i class="fas fa-tag lowest-fare-tag"></i>
+                                @else
+                                    <span class="sold-out-text">Sold out</span>
+                                @endif
+                            </td>
+
+                            <td class="fare-col">
+                                @if ($flight->business_available > 0)
+                                    @php
+                                        $finalParams['ticket_class'] = 'business';
+                                    @endphp
+                                    <a href="{{ route($targetRoute, $finalParams) }}" class="fare-select-btn">
+                                        <div class="fare-radio-ui"></div>
+                                        <span class="fare-price-display">{{ number_format($flight->price * 1.5, 0, ',', '.') }}đ</span>
+                                        <span class="fare-seats-left">{{ $flight->business_available }} Seats left</span>
+                                    </a>
+                                @else
+                                    <span class="sold-out-text">Sold out</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @else
+            <div class="alert alert-warning" style="margin-top: 50px; text-align: center; padding: 40px; border-radius: 8px;">
+                <i class="fas fa-exclamation-circle" style="font-size: 40px; margin-bottom: 20px; display: block; color: #ffc107;"></i>
+                <h3>No flights found</h3>
+                <p>Sorry, we couldn't find any flights for your selected route and date. Please try a different date or search again.</p>
             </div>
         @endif
     </div>
+@endsection
+
 @section('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {

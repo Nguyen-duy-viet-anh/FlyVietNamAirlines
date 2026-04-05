@@ -16,7 +16,7 @@ class FlightController extends Controller
 
         // TRƯỜNG HỢP 1: KHỨ HỒI - BƯỚC 1 (Chưa chọn chiều đi)
         if ($flightType == 'round_trip' && !$outboundFlightId) {
-            $flights = Flight::with('airline')
+            $flights = Flight::with(['airline', 'origin', 'destination'])
                 ->where('origin_id', $request->origin_id)
                 ->where('destination_id', $request->destination_id)
                 ->whereDate('departure_time', $request->departure_date)
@@ -29,7 +29,7 @@ class FlightController extends Controller
         // TRƯỜNG HỢP 2: KHỨ HỒI - BƯỚC 2 (Đã chọn chiều đi -> Giờ tìm chiều về)
         elseif ($flightType == 'round_trip' && $outboundFlightId) {
             // LƯU Ý: Phải đảo ngược Origin và Destination cho chuyến về
-            $flights = Flight::with('airline')
+            $flights = Flight::with(['airline', 'origin', 'destination'])
                 ->where('origin_id', $request->destination_id) 
                 ->where('destination_id', $request->origin_id)
                 ->whereDate('departure_time', $request->return_date)
@@ -41,7 +41,7 @@ class FlightController extends Controller
         }
         // TRƯỜNG HỢP 3: MỘT CHIỀU
         else {
-            $flights = Flight::with('airline')
+            $flights = Flight::with(['airline', 'origin', 'destination'])
                 ->where('origin_id', $request->origin_id)
                 ->where('destination_id', $request->destination_id)
                 ->whereDate('departure_time', $request->departure_date)
