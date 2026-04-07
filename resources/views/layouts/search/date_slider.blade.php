@@ -10,7 +10,7 @@
             ]);
         @endphp
         <a href="{{ route('flights.search', $urlParams) }}" class="date-item {{ $isActive ? 'active' : '' }}">
-            <span>{{ $date->format('D, d M') }}</span>
+            <span>{{ $date->translatedFormat('D, d M') }}</span>
         </a>
     @endfor
 </div>

@@ -17,47 +17,25 @@ class BookingController extends Controller
         $outboundFlight = Flight::find($request->outbound_flight_id);
         $returnFlight = $request->return_flight_id ? Flight::find($request->return_flight_id) : null;
 
-        $adultCount = $request->adult_count ?? 1;
-        $childCount = $request->child_count ?? 0;
-        $infantCount = $request->infant_count ?? 0;
-        
-        // 1. CẤU HÌNH CÁC LOẠI PHÍ CỐ ĐỊNH (Tính theo 1 chiều bay)
-        $taxPerPerson = 120000;      // Thuế & Phí an ninh sân bay (Taxes)
-        $serviceFeePerPerson = 50000; // Phí xuất vé của Đại lý (Service Charges)
-        $infantFixedFee = 150000;     // Phí em bé (Miễn giá vé, chỉ thu phí cố định)
+        $adultCount = (int)$request->adult_count ?? 1;
+        $childCount = (int)$request->child_count ?? 0;
+        $infantCount = (int)$request->infant_count ?? 0;
+        $ticketClass = $request->ticket_class ?? 'economy';
 
-        $multiplier = ($request->ticket_class == 'business') ? 1.5 : 1;
-        $flightsCount = $returnFlight ? 2 : 1; // Khứ hồi thì nhân đôi Thuế phí lên
+        // 1. USE UNIFIED HELPER
+        $priceBreakdown = \App\Helpers\FlightPriceHelper::calculate(
+            $outboundFlight, 
+            $returnFlight, 
+            $adultCount, 
+            $childCount, 
+            $infantCount, 
+            $ticketClass
+        );
 
-        // 2. TÍNH BASE FARE (Giá vé cơ bản)
-        $outboundBase = $outboundFlight->price * $multiplier;
-        $returnBase = $returnFlight ? ($returnFlight->price * $multiplier) : 0;
-        
-        $totalBasePerAdult = $outboundBase + $returnBase;
-        // Trẻ em (2-12 tuổi) thường được hãng bay giảm 20% Base Fare
-        $totalBasePerChild = $totalBasePerAdult * 0.8; 
-
-        // 3. TỔNG KẾT TỪNG HẠNG MỤC
-        $totalBaseFare = ($totalBasePerAdult * $adultCount) + ($totalBasePerChild * $childCount);
-        $totalTaxes = $taxPerPerson * ($adultCount + $childCount) * $flightsCount;
-        $totalService = $serviceFeePerPerson * ($adultCount + $childCount) * $flightsCount;
-        $totalInfantFee = $infantFixedFee * $infantCount * $flightsCount;
-
-        // TỔNG TIỀN CUỐI CÙNG
-        $totalAmount = $totalBaseFare + $totalTaxes + $totalService + $totalInfantFee;
-
-        // 4. Đóng gói mảng dữ liệu Hóa đơn để đẩy ra Giao diện
-        $priceBreakdown = [
-            'base_adult_single' => $totalBasePerAdult,
-            'base_child_single' => $totalBasePerChild,
-            'total_base_fare' => $totalBaseFare,
-            'total_taxes' => $totalTaxes,
-            'total_service' => $totalService,
-            'total_infant' => $totalInfantFee,
-        ];
+        $totalAmount = $priceBreakdown['grand_total'];
 
         $bookingData = $request->all();
-        $bookingData['total_amount'] = $totalAmount; // Đè lại tổng tiền mới nhất
+        $bookingData['total_amount'] = $totalAmount;
 
         return view('flights.book', compact('outboundFlight', 'returnFlight', 'bookingData', 'priceBreakdown'));
     }
@@ -183,36 +161,22 @@ class BookingController extends Controller
                             : null;
 
         // 3. TÍNH LẠI BẢNG BÓC TÁCH GIÁ ĐỂ HIỂN THỊ Ở TRANG REVIEW (Bảo mật hơn)
-        $adultCount = $request->adult_count ?? 1;
-        $childCount = $request->child_count ?? 0;
-        $infantCount = $request->infant_count ?? 0;
-        
-        $taxPerPerson = 120000;
-        $serviceFeePerPerson = 50000;
-        $infantFixedFee = 150000;
+        $adultCount = (int)($request->adult_count ?? 1);
+        $childCount = (int)($request->child_count ?? 0);
+        $infantCount = (int)($request->infant_count ?? 0);
+        $ticketClass = $request->ticket_class ?? 'economy';
 
-        $multiplier = ($request->ticket_class == 'business') ? 1.5 : 1;
-        $flightsCount = $returnFlight ? 2 : 1;
+        $priceBreakdown = \App\Helpers\FlightPriceHelper::calculate(
+            $outboundFlight, 
+            $returnFlight, 
+            $adultCount, 
+            $childCount, 
+            $infantCount, 
+            $ticketClass
+        );
 
-        $outboundBase = $outboundFlight->price * $multiplier;
-        $returnBase = $returnFlight ? ($returnFlight->price * $multiplier) : 0;
-        
-        $totalBasePerAdult = $outboundBase + $returnBase;
-        $totalBasePerChild = $totalBasePerAdult * 0.8; 
-
-        $totalBaseFare = ($totalBasePerAdult * $adultCount) + ($totalBasePerChild * $childCount);
-        $totalTaxes = $taxPerPerson * ($adultCount + $childCount) * $flightsCount;
-        $totalService = $serviceFeePerPerson * ($adultCount + $childCount) * $flightsCount;
-        $totalInfantFee = $infantFixedFee * $infantCount * $flightsCount;
-
-        $priceBreakdown = [
-            'base_adult_single' => $totalBasePerAdult,
-            'base_child_single' => $totalBasePerChild,
-            'total_base_fare' => $totalBaseFare,
-            'total_taxes' => $totalTaxes,
-            'total_service' => $totalService,
-            'total_infant' => $totalInfantFee,
-        ];
+        // Đảm bảo total_amount trong view khớp với helper
+        $bookingData['total_amount'] = $priceBreakdown['grand_total'];
 
         // 4. Đẩy tất cả sang View Review
         return view('flights.review', compact('passengerData', 'bookingData', 'outboundFlight', 'returnFlight', 'priceBreakdown'));

@@ -11,8 +11,26 @@ class FlightController extends Controller
     public function search(Request $request)
     {
         // Bắt thông số từ Form tìm kiếm
-        $flightType = $request->flight_type; // 'one_way' hoặc 'round_trip'
-        $outboundFlightId = $request->outbound_flight_id; // Sẽ có dữ liệu nếu khách đã chọn xong chiều đi
+        $outboundFlightId = $request->outbound_flight_id;
+        $returnFlightId = $request->return_flight_id;
+        $flightType = $request->flight_type;
+
+        // Tự động nhận diện loại chuyến bay nếu thiếu flight_type
+        if (!$flightType && $outboundFlightId) {
+            $flightType = 'round_trip';
+        }
+
+        $outboundFlight = null;
+        if ($outboundFlightId) {
+            $outboundFlight = Flight::with(['airline', 'origin', 'destination'])->find($outboundFlightId);
+        }
+
+        $returnFlight = null;
+        if ($returnFlightId) {
+            $returnFlight = Flight::with(['airline', 'origin', 'destination'])->find($returnFlightId);
+        }
+
+        $noReturnAvailable = false;
 
         // TRƯỜNG HỢP 1: KHỨ HỒI - BƯỚC 1 (Chưa chọn chiều đi)
         if ($flightType == 'round_trip' && !$outboundFlightId) {
@@ -22,13 +40,25 @@ class FlightController extends Controller
                 ->whereDate('departure_time', $request->departure_date)
                 ->orderBy('price', 'asc')
                 ->get();
+            
+            // KIỂM TRA XEM CÓ CHIỀU VỀ KHÔNG?
+            if ($flights->isNotEmpty()) {
+                $hasReturnFlights = Flight::where('origin_id', $request->destination_id)
+                    ->where('destination_id', $request->origin_id)
+                    ->whereDate('departure_time', $request->return_date)
+                    ->exists();
                 
-            $step = 'outbound'; // Đánh dấu đang ở bước chọn chiều đi
+                if (!$hasReturnFlights) {
+                    $flights = collect(); // Không cho chọn chiều đi nếu không có chiều về
+                    $noReturnAvailable = true;
+                }
+            }
+                
+            $step = 'outbound'; 
             $title = 'Chọn chuyến bay Chiều Đi';
         }
         // TRƯỜNG HỢP 2: KHỨ HỒI - BƯỚC 2 (Đã chọn chiều đi -> Giờ tìm chiều về)
         elseif ($flightType == 'round_trip' && $outboundFlightId) {
-            // LƯU Ý: Phải đảo ngược Origin và Destination cho chuyến về
             $flights = Flight::with(['airline', 'origin', 'destination'])
                 ->where('origin_id', $request->destination_id) 
                 ->where('destination_id', $request->origin_id)
@@ -36,7 +66,7 @@ class FlightController extends Controller
                 ->orderBy('price', 'asc')
                 ->get();
                 
-            $step = 'return'; // Đánh dấu đang ở bước chọn chiều về
+            $step = 'return'; 
             $title = 'Chọn chuyến bay Chiều Về';
         }
         // TRƯỜNG HỢP 3: MỘT CHIỀU
@@ -54,6 +84,6 @@ class FlightController extends Controller
 
         $airports = Airport::all();
 
-        return view('flights.search', compact('flights', 'step', 'title', 'request', 'outboundFlightId', 'airports'));
+        return view('flights.search', compact('flights', 'step', 'title', 'request', 'outboundFlightId', 'outboundFlight', 'returnFlightId', 'returnFlight', 'airports', 'noReturnAvailable'));
     }
 }

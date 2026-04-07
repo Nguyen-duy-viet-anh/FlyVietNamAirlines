@@ -70,15 +70,14 @@
                 @endif
 
 
-                <h4 class="section-subtitle">2. Thuế & Phí (Taxes & Fees)</h4>
-
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <span>Thuế & Phí sân bay</span>
-                    <span>{{ number_format($priceBreakdown['total_taxes'], 0, ',', '.') }}đ</span>
-                </div>
+                <h4 class="section-subtitle">2. Phí dịch vụ & Thuế</h4>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                     <span>Phí dịch vụ & Hệ thống</span>
                     <span>{{ number_format($priceBreakdown['total_service'], 0, ',', '.') }}đ</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>Thuế VAT (10%)</span>
+                    <span>{{ number_format($priceBreakdown['total_vat'], 0, ',', '.') }}đ</span>
                 </div>
 
                 @if ($bookingData['infant_count'] > 0)
