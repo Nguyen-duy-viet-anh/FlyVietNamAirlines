@@ -103,7 +103,17 @@
     <form action="{{ route('flights.payment') }}" method="POST">
         @csrf
         @foreach($passengerData as $key => $value)
-            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+            @if(is_array($value))
+                {{-- Handle nested arrays for hidden inputs (e.g., passengers[adult][1][first_name]) --}}
+                @php
+                    $flatArray = Arr::dot([$key => $value]);
+                @endphp
+                @foreach($flatArray as $flatKey => $flatValue)
+                    <input type="hidden" name="{{ $flatKey }}" value="{{ $flatValue }}">
+                @endforeach
+            @else
+                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+            @endif
         @endforeach
         
         <div class="flex-between">

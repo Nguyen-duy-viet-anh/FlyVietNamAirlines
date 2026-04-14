@@ -3,215 +3,9 @@
 @section('content')
     @include('layouts.search.booking_stepper', ['currentStep' => 1])
 
-    <style>
-        /* Simplified Styles for Flight Selection UI */
-        .selected-flight-card {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 15px;
-            margin-bottom: 20px;
-            position: relative;
-        }
-        .selection-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #555;
-            font-weight: 600;
-            margin-bottom: 10px;
-            font-size: 13px;
-            text-transform: uppercase;
-        }
-        .reselect-link {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            color: #0066cc;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 13px;
-        }
-        .reselect-link:hover {
-            text-decoration: underline;
-        }
-        .selected-flight-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        /* Simplified Selection Summary Panel */
-        .selection-summary-panel {
-            background: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 20px;
-            margin-top: 30px;
-            margin-bottom: 30px;
-        }
-        .summary-title {
-            font-size: 18px;
-            color: #333;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-        .summary-grid {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            gap: 20px;
-            align-items: flex-start;
-        }
-        .summary-column {
-            background: #fff;
-            padding: 15px;
-            border: 1px solid #eee;
-            border-radius: 4px;
-        }
-        .summary-divider {
-            width: 1px;
-            background: #ddd;
-            height: 100%;
-        }
-        .summary-route {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 13px;
-            color: #777;
-        }
-        .summary-times {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 5px;
-        }
-        .summary-time {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-        }
-        .summary-city {
-            font-size: 13px;
-            color: #777;
-            display: block;
-        }
-        .summary-arrow {
-            color: #aaa;
-            font-size: 14px;
-        }
-        .summary-footer {
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .total-box {
-            text-align: right;
-        }
-        .total-label {
-            font-size: 14px;
-            color: #777;
-            margin-bottom: 2px;
-            display: block;
-        }
-        .total-price {
-            font-size: 28px;
-            font-weight: 700;
-            color: #333;
-        }
-        .total-currency {
-            font-size: 16px;
-            font-weight: 500;
-            margin-right: 3px;
-        }
-        .btn-continue {
-            background-color: #0066cc;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 4px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn-continue:hover {
-            background-color: #004c99;
-            color: white;
-        }
-        .traveler-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #777;
-            font-size: 13px;
-        }
-
-        /* Price Breakdown Dropdown Styles */
-        .price-breakdown-wrapper {
-            margin-top: 20px;
-            border-top: 1px solid #eee;
-            padding-top: 15px;
-        }
-        .price-breakdown-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            padding: 10px 0;
-            color: #333;
-            font-weight: 600;
-            user-select: none;
-        }
-        .price-breakdown-header:hover {
-            color: #0066cc;
-        }
-        .price-breakdown-content {
-            display: none;
-            background: #fff;
-            padding: 15px;
-            border-radius: 4px;
-            margin-top: 10px;
-            border: 1px solid #eee;
-        }
-        .price-breakdown-content.show {
-            display: block;
-        }
-        .price-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 14px;
-            color: #666;
-        }
-        .price-row.summary-item {
-            font-weight: 600;
-            color: #333;
-            border-top: 1px dashed #eee;
-            margin-top: 8px;
-            padding-top: 8px;
-        }
-        .price-row.total-per-traveler {
-            font-weight: 700;
-            color: #000;
-            margin-top: 4px;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .summary-grid {
-                grid-template-columns: 1fr;
-            }
-            .summary-divider {
-                display: none;
-            }
-        }
-    </style>
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/flight-search.css') }}">
+@endpush
 
     <div class="container">
         <!-- Hidden Search Form for 'Edit search' -->
@@ -233,42 +27,43 @@
                 <a href="{{ route('flights.search', $reselectOutboundParams) }}" class="reselect-link">Chọn lại</a>
 
                 <div class="selected-flight-content">
-                    <div class="flight-main-info" style="border-right: none; padding: 0; width: 100%;">
+                    <div class="flight-main-info" style="border-right: none; padding: 0;">
                         <div class="flight-time-box">
                             <span class="time">{{ $outboundFlight->departure_time->format('H:i') }}</span>
-                            <span class="city">{{ $outboundFlight->origin->code }}</span>
-                            <small>{{ $outboundFlight->origin->city }}</small>
+                            <span class="city" style="font-weight: 600;">{{ $outboundFlight->origin->code }}</span>
+                            <small class="d-block text-muted">{{ $outboundFlight->origin->city }}</small>
                         </div>
 
                         <div class="flight-path-viz">
-                            <div class="viz-line">
+                            <div class="viz-line" style="margin: 8px 0;">
                                 <i class="fas fa-plane"></i>
                             </div>
-                            <span class="viz-duration">{{ $outboundFlight->departure_time->diff($outboundFlight->arrival_time)->format('%hh%im') }}</span>
+                            <span class="viz-duration">{{ $outboundFlight->departure_time->diff($outboundFlight->arrival_time)->format('%hh %im') }}</span>
                             <span class="viz-stops">Bay thẳng</span>
                         </div>
 
                         <div class="flight-time-box">
                             <span class="time">{{ $outboundFlight->arrival_time->format('H:i') }}</span>
-                            <span class="city">{{ $outboundFlight->destination->code }}</span>
-                            <small>{{ $outboundFlight->destination->city }}</small>
+                            <span class="city" style="font-weight: 600;">{{ $outboundFlight->destination->code }}</span>
+                            <small class="d-block text-muted">{{ $outboundFlight->destination->city }}</small>
                         </div>
 
                         @php
                             $classMap = ['economy' => 'Phổ thông', 'business' => 'Thương gia'];
                         @endphp
-                        <div style="margin-left: auto; display: flex; align-items: center; gap: 20px;">
-                            <div class="airline-info" style="display: flex; align-items: center; gap: 8px;">
-                                <img src="{{ asset('images/airlines/' . Str::slug($outboundFlight->airline->name) . '.png') }}" 
-                                     alt="{{ $outboundFlight->airline->name }}" 
-                                     style="width: 30px; height: 30px;"
-                                     onerror="this.onerror=null; this.src='https://via.placeholder.com/30x30?text=✈️';">
+                        <div class="airline-class-info">
+                            <div class="airline-info">
+                                <div class="airline-logo-box">
+                                    <img src="{{ asset('images/' . (['vietjet-air' => 'Logo-VietjetAir.jpg', 'bamboo-airways' => 'logo-bamboo-airways.jpg', 'vietnam-airlines' => 'logo-vietnamAirlines.png'][Str::slug($outboundFlight->airline->name)] ?? Str::slug($outboundFlight->airline->name) . '.png')) }}" 
+                                         alt="{{ $outboundFlight->airline->name }}" 
+                                         onerror="this.onerror=null; this.src='https://via.placeholder.com/40x40?text=✈️';">
+                                </div>
                                 <div>
-                                    <div style="font-weight: 600; font-size: 14px;">{{ $outboundFlight->airline->name }}</div>
-                                    <div style="font-size: 12px; color: #666;">{{ $outboundFlight->flight_number }}</div>
+                                    <div style="font-weight: 600; font-size: 14px; color: #333;">{{ $outboundFlight->airline->name }}</div>
+                                    <div style="font-size: 12px; color: #777;">{{ $outboundFlight->flight_number }}</div>
                                 </div>
                             </div>
-                            <div style="font-weight: 700; color: #003366; font-size: 16px;">
+                            <div style="font-weight: 700; color: #003366; font-size: 18px; min-width: 90px; text-align: right;">
                                 {{ $classMap[request('ticket_class', 'economy')] ?? request('ticket_class') }}
                             </div>
                         </div>
@@ -291,39 +86,40 @@
                 <a href="{{ route('flights.search', $reselectReturnParams) }}" class="reselect-link">Chọn lại</a>
 
                 <div class="selected-flight-content">
-                    <div class="flight-main-info" style="border-right: none; padding: 0; width: 100%;">
+                    <div class="flight-main-info" style="border-right: none; padding: 0;">
                         <div class="flight-time-box">
                             <span class="time">{{ $returnFlight->departure_time->format('H:i') }}</span>
-                            <span class="city">{{ $returnFlight->origin->code }}</span>
-                            <small>{{ $returnFlight->origin->city }}</small>
+                            <span class="city" style="font-weight: 600;">{{ $returnFlight->origin->code }}</span>
+                            <small class="d-block text-muted">{{ $returnFlight->origin->city }}</small>
                         </div>
 
                         <div class="flight-path-viz">
-                            <div class="viz-line">
+                            <div class="viz-line" style="margin: 8px 0;">
                                 <i class="fas fa-plane" style="transform: rotate(180deg);"></i>
                             </div>
-                            <span class="viz-duration">{{ $returnFlight->departure_time->diff($returnFlight->arrival_time)->format('%hh%im') }}</span>
+                            <span class="viz-duration">{{ $returnFlight->departure_time->diff($returnFlight->arrival_time)->format('%hh %im') }}</span>
                             <span class="viz-stops">Bay thẳng</span>
                         </div>
 
                         <div class="flight-time-box">
                             <span class="time">{{ $returnFlight->arrival_time->format('H:i') }}</span>
-                            <span class="city">{{ $returnFlight->destination->code }}</span>
-                            <small>{{ $returnFlight->destination->city }}</small>
+                            <span class="city" style="font-weight: 600;">{{ $returnFlight->destination->code }}</span>
+                            <small class="d-block text-muted">{{ $returnFlight->destination->city }}</small>
                         </div>
 
-                        <div style="margin-left: auto; display: flex; align-items: center; gap: 20px;">
-                            <div class="airline-info" style="display: flex; align-items: center; gap: 8px;">
-                                <img src="{{ asset('images/airlines/' . Str::slug($returnFlight->airline->name) . '.png') }}" 
-                                     alt="{{ $returnFlight->airline->name }}" 
-                                     style="width: 30px; height: 30px;"
-                                     onerror="this.onerror=null; this.src='https://via.placeholder.com/30x30?text=✈️';">
+                        <div class="airline-class-info">
+                            <div class="airline-info">
+                                <div class="airline-logo-box">
+                                    <img src="{{ asset('images/' . (['vietjet-air' => 'Logo-VietjetAir.jpg', 'bamboo-airways' => 'logo-bamboo-airways.jpg', 'vietnam-airlines' => 'logo-vietnamAirlines.png'][Str::slug($returnFlight->airline->name)] ?? Str::slug($returnFlight->airline->name) . '.png')) }}" 
+                                         alt="{{ $returnFlight->airline->name }}" 
+                                         onerror="this.onerror=null; this.src='https://via.placeholder.com/40x40?text=✈️';">
+                                </div>
                                 <div>
-                                    <div style="font-weight: 600; font-size: 14px;">{{ $returnFlight->airline->name }}</div>
-                                    <div style="font-size: 12px; color: #666;">{{ $returnFlight->flight_number }}</div>
+                                    <div style="font-weight: 600; font-size: 14px; color: #333;">{{ $returnFlight->airline->name }}</div>
+                                    <div style="font-size: 12px; color: #777;">{{ $returnFlight->flight_number }}</div>
                                 </div>
                             </div>
-                            <div style="font-weight: 700; color: #003366; font-size: 16px;">
+                            <div style="font-weight: 700; color: #003366; font-size: 18px; min-width: 90px; text-align: right;">
                                 {{ $classMap[request('ticket_class', 'economy')] ?? request('ticket_class') }}
                             </div>
                         </div>
@@ -398,9 +194,9 @@
                                 </div>
 
                                 <div class="flight-detail-footer">
-                                    <img src="{{ asset('images/airlines/' . Str::slug($flight->airline->name) . '.png') }}" 
+                                    <img src="{{ asset('images/' . (['vietjet-air' => 'Logo-VietjetAir.jpg', 'bamboo-airways' => 'logo-bamboo-airways.jpg', 'vietnam-airlines' => 'logo-vietnamAirlines.png'][Str::slug($flight->airline->name)] ?? Str::slug($flight->airline->name) . '.png')) }}" 
                                          alt="{{ $flight->airline->name }}" 
-                                         style="width: 20px; height: 20px; flex-shrink: 0;"
+                                         style="width: 20px; height: 20px; flex-shrink: 0; object-fit: contain;"
                                          onerror="this.onerror=null; this.src='https://via.placeholder.com/20x20?text=✈️';">
                                     <span>{{ $flight->airline->name }} {{ $flight->flight_number }}</span>
                                     <a href="#" class="more-link" onclick="event.preventDefault(); toggleDropdown('details-{{ $flight->id }}')">Chi tiết</a>

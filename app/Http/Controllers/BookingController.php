@@ -48,6 +48,22 @@ class BookingController extends Controller
 
             $bookingCode = 'BKG-' . strtoupper(Str::random(8));
 
+            // 1. Process primary passenger from the new nested structure
+            $primaryAdult = $request->input('passengers.adult.1');
+            $passengerName = '';
+            $passengerGender = 'other';
+
+            if ($primaryAdult) {
+                $passengerName = strtoupper($primaryAdult['title'] . ' ' . $primaryAdult['first_name'] . ' ' . $primaryAdult['last_name']);
+                $title = $primaryAdult['title'];
+                if ($title == 'Mr') $passengerGender = 'male';
+                elseif (in_array($title, ['Ms', 'Mdm', 'Miss'])) $passengerGender = 'female';
+            } else {
+                // Fallback for old form or missing data
+                $passengerName = $request->passenger_name ?? 'UNKNOWN';
+                $passengerGender = $request->passenger_gender ?? 'other';
+            }
+
             $booking = AppBooking::create([
                 'booking_code' => $bookingCode,
                 'user_id' => Auth::check() ? Auth::id() : null,
@@ -61,10 +77,10 @@ class BookingController extends Controller
                 'total_amount' => $request->total_amount,
                 'status' => 'pending',
                 'payment_status' => 'unpaid',
-                'passenger_name' => $request->passenger_name,
+                'passenger_name' => $passengerName,
                 'passenger_email' => $request->passenger_email,
-                'passenger_phone' => $request->passenger_phone,
-                'passenger_gender' => $request->passenger_gender,
+                'passenger_phone' => ($request->passenger_country_code ?? '') . ' ' . $request->passenger_phone,
+                'passenger_gender' => $passengerGender,
                 'notes' => $request->notes,
             ]);
 
@@ -175,8 +191,11 @@ class BookingController extends Controller
             $ticketClass
         );
 
-        // Đảm bảo total_amount trong view khớp với helper
-        $bookingData['total_amount'] = $priceBreakdown['grand_total'];
+        // 0. Process name for display in Review page
+        $primaryAdult = $request->input('passengers.adult.1');
+        if ($primaryAdult) {
+            $passengerData['passenger_name'] = strtoupper($primaryAdult['title'] . ' ' . $primaryAdult['first_name'] . ' ' . $primaryAdult['last_name']);
+        }
 
         // 4. Đẩy tất cả sang View Review
         return view('flights.review', compact('passengerData', 'bookingData', 'outboundFlight', 'returnFlight', 'priceBreakdown'));
