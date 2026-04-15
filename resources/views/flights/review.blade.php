@@ -1,125 +1,305 @@
 @extends('layouts.public')
 
 @section('content')
+    @push('styles')
+        <link rel="stylesheet" href="{{ asset('css/review_styles.css') }}">
+    @endpush
+
     @include('layouts.search.booking_stepper', ['currentStep' => 3])
-    <div class="card" style="max-width:800px; margin:0 auto;">
-    <h2 class="text-center section-title--blue">Kiểm tra thông tin Đặt vé</h2>
-    <p class="text-center muted">Vui lòng kiểm tra kỹ các thông tin dưới đây trước khi thanh toán.</p>
-    <hr class="hr-dashed">
 
-    <div class="panel-muted">
-        <h3 class="section-title">Thông tin Người đặt</h3>
-        <p><strong>Họ tên:</strong> {{ $passengerData['passenger_name'] }}</p>
-        <p><strong>Email:</strong> {{ $passengerData['passenger_email'] }}</p>
-        <p><strong>Số điện thoại:</strong> {{ $passengerData['passenger_phone'] }}</p>
-        <p><strong>Ghi chú:</strong> {{ $passengerData['notes'] ?? 'Không có' }}</p>
-    </div>
-
-    <div style="background:#fff; border:1px solid #ddd; padding:20px; border-radius:8px; margin-bottom:20px;">
-        <h3 class="section-title">Thông tin Chuyến bay</h3>
-        <p><strong>Loại vé:</strong> {{ $passengerData['flight_type'] == 'one_way' ? 'Một chiều' : 'Khứ hồi' }}</p>
-        <p><strong>Số lượng khách:</strong> {{ $passengerData['adult_count'] }} Người lớn, {{ $passengerData['child_count'] }} Trẻ em, {{ $passengerData['infant_count'] }} Sơ sinh.</p>
-        
-        <div style="margin-top: 15px;">
-            <strong class="highlight">[CHUYẾN ĐI]</strong> {{ $outboundFlight->origin->city }} → {{ $outboundFlight->destination->city }} <br>
-            Hãng bay: {{ $outboundFlight->airline->name }} ({{ $outboundFlight->flight_number }}) <br>
-            Khởi hành: {{ $outboundFlight->departure_time->format('H:i d/m/Y') }}
+    <div class="review-container">
+        <div class="review-header">
+            <h1>Kiểm tra thông tin đặt vé</h1>
+            <div class="order-code">Mã đặt hàng: <span style="color: #0056b3;">#PG-{{ strtoupper(Str::random(5)) }}</span>
+            </div>
+            <div class="order-note">Mã đặt hàng này chỉ dùng để tham khảo, KHÔNG dùng để làm thủ tục check-in hay lên máy
+                bay!</div>
         </div>
 
-        @if($returnFlight)
-        <div style="margin-top:15px;">
-            <strong class="highlight">[CHUYẾN VỀ]</strong> {{ $returnFlight->origin->city }} → {{ $returnFlight->destination->city }} <br>
-            Hãng bay: {{ $returnFlight->airline->name }} ({{ $returnFlight->flight_number }}) <br>
-            Khởi hành: {{ $returnFlight->departure_time->format('H:i d/m/Y') }}
-        </div>
-        @endif
-    </div>
-        <div class="card" style="background-color:#f9f9f9;">
-            <h2>Tóm tắt đơn hàng</h2>
-            <hr class="hr-dashed">
-            <p><strong>Loại vé:</strong> {{ $bookingData['flight_type'] == 'one_way' ? 'Một chiều' : 'Khứ hồi' }}</p>
-            <p><strong>Hành khách:</strong> {{ $bookingData['adult_count'] }} Người lớn, {{ $bookingData['child_count'] }}
-                Trẻ em</p>
-            <h4 class="section-title--blue" style="margin-top:15px;">Chuyến đi</h4>
-            <p>{{ $outboundFlight->airline->name }} ({{ $outboundFlight->flight_number }})</p>
-            <p>{{ $outboundFlight->origin->city }} → {{ $outboundFlight->destination->city }}</p>
-            @if ($returnFlight)
-                <h4 style="margin-top: 15px; color: #0056b3;">Chuyến về</h4>
-                <p>{{ $returnFlight->airline->name }} ({{ $returnFlight->flight_number }})</p>
-                <p>{{ $returnFlight->origin->city }} → {{ $returnFlight->destination->city }}</p>
-            @endif
-            <hr style="margin: 15px 0;">
-            <div
-                style="background: #fff; padding: 25px; border-radius: 8px; border: 1px solid #e1e8ed; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px;">
-                <h3 style="border-bottom:2px solid #3498db; padding-bottom:10px; margin-top:0; color:#2c3e50;">Chi tiết giá vé</h3>
-
-                <h4 style="color: #7f8c8d; margin-bottom: 10px; margin-top: 20px;">1. Tiền vé cơ bản (Base Fare)</h4>
-
-                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                    <span>Người lớn (x{{ $bookingData['adult_count'] }})</span>
-                    <strong>{{ number_format($priceBreakdown['base_adult_single'] * $bookingData['adult_count'], 0, ',', '.') }}đ</strong>
-                </div>
-                <small class="small-muted">{{ number_format($priceBreakdown['base_adult_single'], 0, ',', '.') }}đ / khách</small>
-
-                @if ($bookingData['child_count'] > 0)
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                        <span>Trẻ em (x{{ $bookingData['child_count'] }})</span>
-                        <strong>{{ number_format($priceBreakdown['base_child_single'] * $bookingData['child_count'], 0, ',', '.') }}đ</strong>
+        {{-- Itinerary Section --}}
+        <div class="review-section">
+            <div class="section-title">Hành trình</div>
+            <div class="section-content">
+                {{-- Outbound Flight --}}
+                <div class="flight-segment">
+                    <div class="segment-route-info">
+                        <div class="route-header">
+                            {{ $outboundFlight->origin->city }} - {{ $outboundFlight->destination->city }} &nbsp;
+                            <span
+                                style="color: #666; font-weight: normal;">{{ $outboundFlight->departure_time->translatedFormat('D, d M Y') }}</span>
+                        </div>
+                        <div class="time-display">
+                            <div class="time-box">
+                                <span class="time">{{ $outboundFlight->departure_time->format('H:i') }}</span>
+                                <span class="airport-code">{{ $outboundFlight->origin->code }}</span>
+                            </div>
+                            <div class="flight-connector">
+                                <span class="duration-text">
+                                    @php
+                                        $duration = $outboundFlight->departure_time->diff($outboundFlight->arrival_time);
+                                        echo $duration->format('%hh %Im');
+                                    @endphp
+                                </span>
+                                <div class="connector-line">
+                                    <i class="fas fa-plane"></i>
+                                </div>
+                                <span class="duration-text">Bay thẳng</span>
+                            </div>
+                            <div class="time-box">
+                                <span class="time">{{ $outboundFlight->arrival_time->format('H:i') }}</span>
+                                <span class="airport-code">{{ $outboundFlight->destination->code }}</span>
+                            </div>
+                        </div>
+                        <div class="segment-details">
+                            <img src="{{ asset('images/' . ($outboundFlight->airline->name == 'Vietjet Air' ? 'Logo-VietjetAir.jpg' : ($outboundFlight->airline->name == 'Bamboo Airways' ? 'logo-bamboo-airways.jpg' : 'logo-vietnamAirlines.png'))) }}"
+                                class="airline-logo" alt="Airline">
+                            <span
+                                style="font-size: 13px; color: #444; font-weight: 500;">{{ $outboundFlight->flight_number }}</span>
+                        </div>
                     </div>
-                    <small class="small-muted">Giảm 20%: {{ number_format($priceBreakdown['base_child_single'], 0, ',', '.') }}đ / khách</small>
-                @endif
-
-
-                <h4 class="section-subtitle">2. Phí dịch vụ & Thuế</h4>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <span>Phí dịch vụ & Hệ thống</span>
-                    <span>{{ number_format($priceBreakdown['total_service'], 0, ',', '.') }}đ</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <span>Thuế VAT (10%)</span>
-                    <span>{{ number_format($priceBreakdown['total_vat'], 0, ',', '.') }}đ</span>
+                    <div class="segment-class-info">
+                        <div>Hạng vé: {{ ucfirst($passengerData['ticket_class'] ?? 'Phổ thông') }} Flex</div>
+                        <div>Hành lý: 20KG</div>
+                    </div>
                 </div>
 
-                @if ($bookingData['infant_count'] > 0)
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; color: #d35400;">
-                        <span>Phí em bé (x{{ $bookingData['infant_count'] }})</span>
-                        <span>{{ number_format($priceBreakdown['total_infant'], 0, ',', '.') }}đ</span>
+                {{-- Return Flight --}}
+                @if($returnFlight)
+                    <div class="flight-segment" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+                        <div class="segment-route-info">
+                            <div class="route-header">
+                                {{ $returnFlight->origin->city }} - {{ $returnFlight->destination->city }} &nbsp;
+                                <span
+                                    style="color: #666; font-weight: normal;">{{ $returnFlight->departure_time->translatedFormat('D, d M Y') }}</span>
+                            </div>
+                            <div class="time-display">
+                                <div class="time-box">
+                                    <span class="time">{{ $returnFlight->departure_time->format('H:i') }}</span>
+                                    <span class="airport-code">{{ $returnFlight->origin->code }}</span>
+                                </div>
+                                <div class="flight-connector">
+                                    <span class="duration-text">
+                                        @php
+                                            $duration = $returnFlight->departure_time->diff($returnFlight->arrival_time);
+                                            echo $duration->format('%hh %Im');
+                                        @endphp
+                                    </span>
+                                    <div class="connector-line">
+                                        <i class="fas fa-plane"></i>
+                                    </div>
+                                    <span class="duration-text">Bay thẳng</span>
+                                </div>
+                                <div class="time-box">
+                                    <span class="time">{{ $returnFlight->arrival_time->format('H:i') }}</span>
+                                    <span class="airport-code">{{ $returnFlight->destination->code }}</span>
+                                </div>
+                            </div>
+                            <div class="segment-details">
+                                <img src="{{ asset('images/' . ($returnFlight->airline->name == 'Vietjet Air' ? 'Logo-VietjetAir.jpg' : ($returnFlight->airline->name == 'Bamboo Airways' ? 'logo-bamboo-airways.jpg' : 'logo-vietnamAirlines.png'))) }}"
+                                    class="airline-logo" alt="Airline">
+                                <span
+                                    style="font-size: 13px; color: #444; font-weight: 500;">{{ $returnFlight->flight_number }}</span>
+                            </div>
+                        </div>
+                        <div class="segment-class-info">
+                            <div>Hạng vé: {{ ucfirst($passengerData['ticket_class'] ?? 'Phổ thông') }} Flex</div>
+                            <div>Hành lý: 20KG</div>
+                        </div>
                     </div>
                 @endif
-
-                <hr class="hr-dashed">
-
-                <div class="flex-between">
-                    <span style="font-size:18px; font-weight:bold; color:#2c3e50;">TỔNG CỘNG:</span>
-                    <span class="price-large">{{ number_format($bookingData['total_amount'], 0, ',', '.') }} VNĐ</span>
-                </div>
-                <small class="muted" style="text-align:right; display:block; margin-top:5px;">(Đã bao gồm VAT)</small>
             </div>
         </div>
-    <div class="text-right" style="margin-bottom:20px;">
-        <h2>Tổng thanh toán: <span style="color:#e60000;">{{ number_format($passengerData['total_amount'], 0, ',', '.') }} VNĐ</span></h2>
-    </div>
 
-    <form action="{{ route('flights.payment') }}" method="POST">
-        @csrf
-        @foreach($passengerData as $key => $value)
-            @if(is_array($value))
-                {{-- Handle nested arrays for hidden inputs (e.g., passengers[adult][1][first_name]) --}}
-                @php
-                    $flatArray = Arr::dot([$key => $value]);
-                @endphp
-                @foreach($flatArray as $flatKey => $flatValue)
-                    <input type="hidden" name="{{ $flatKey }}" value="{{ $flatValue }}">
-                @endforeach
-            @else
-                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-            @endif
-        @endforeach
-        
-        <div class="flex-between">
-            <a href="javascript:history.back()" class="btn" style="background:#ccc; color:#333; text-decoration:none;">Quay lại sửa</a>
-            <button type="submit" class="btn btn-primary btn-large">Xác nhận & Thanh toán VNPay</button>
+        {{-- Price Section --}}
+        <div class="review-section">
+            <div class="section-title">Giá vé</div>
+            <div class="section-content">
+                <table class="review-table price-table">
+                    <thead>
+                        <tr>
+                            <th>Dịch vụ</th>
+                            <th>Số tiền (VND)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Giá vé cơ bản</td>
+                            <td>{{ number_format($priceBreakdown['base_adult_single'] * $passengerData['adult_count'] + ($priceBreakdown['base_child_single'] ?? 0) * ($passengerData['child_count'] ?? 0), 0, ',', '.') }}
+                                VND</td>
+                        </tr>
+                        <tr>
+                            <td>Phí dịch vụ</td>
+                            <td>{{ number_format($priceBreakdown['total_service'], 0, ',', '.') }} VND</td>
+                        </tr>
+                        <tr>
+                            <td>Thuế & Phí</td>
+                            <td>{{ number_format($priceBreakdown['total_vat'] + ($priceBreakdown['total_infant'] ?? 0), 0, ',', '.') }}
+                                VND</td>
+                        </tr>
+        @php
+            $paxTotal = 0;
+            if ($passengerData['adult_count'] > 0)
+                $paxTotal++;
+        @endphp
+                        <tr>
+                            <td>x {{ $passengerData['adult_count'] }} Người lớn</td>
+                            <td>{{ number_format($passengerData['total_amount'], 0, ',', '.') }} VND</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="grand-total">
+                    <span>Tổng cộng</span>
+                    <span
+                        style="font-size: 18px; color: #333;">{{ number_format($passengerData['total_amount'], 0, ',', '.') }}
+                        VND</span>
+                </div>
+            </div>
         </div>
-    </form>
-</div>
+
+        {{-- Passenger details Section --}}
+        <div class="review-section">
+            <div class="section-title">Thông tin hành khách</div>
+            <div class="section-content">
+                <table class="review-table">
+                    <thead>
+                        <tr>
+                            <th>Họ và tên</th>
+                            <th>Ngày sinh</th>
+                            <th>Hộ chiếu</th>
+                            <th>Số thẻ thành viên</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{-- Adult Passengers --}}
+                        @if(isset($passengerData['passengers']['adult']))
+                            @foreach($passengerData['passengers']['adult'] as $p)
+                                <tr>
+                                    <td>{{ ($p['title'] == 'Mr' ? 'Ông' : 'Bà') }}.
+                                        {{ strtoupper(($p['first_name'] ?? '') . ' ' . ($p['last_name'] ?? '')) }}</td>
+                                    <td>{{ $p['dob_day'] }}/{{ $p['dob_month'] }}/{{ $p['dob_year'] }}</td>
+                                    <td>112233</td> {{-- Placeholder --}}
+                                    <td>-</td>
+                                </tr>
+                            @endforeach
+                        @endif
+                        {{-- Child Passengers --}}
+                        @if(isset($passengerData['passengers']['child']))
+                            @foreach($passengerData['passengers']['child'] as $p)
+                                <tr>
+                                    <td>{{ ($p['title'] == 'Master' ? 'Cậu bé' : 'Cô bé') }}.
+                                        {{ strtoupper(($p['first_name'] ?? '') . ' ' . ($p['last_name'] ?? '')) }}</td>
+                                    <td>{{ $p['dob_day'] }}/{{ $p['dob_month'] }}/{{ $p['dob_year'] }}</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {{-- Contact Information Section --}}
+        <div class="review-section">
+            <div class="section-title">Thông tin liên hệ</div>
+            <div class="section-content">
+                <table class="review-table">
+                    <thead>
+                        <tr>
+                            <th>Điện thoại</th>
+                            <th>Email</th>
+                            <th>Yêu cầu đặc biệt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ ($passengerData['passenger_country_code'] ?? '') }}{{ $passengerData['passenger_phone'] }}
+                            </td>
+                            <td>{{ $passengerData['passenger_email'] }}</td>
+                            <td>{{ $passengerData['notes'] ?? '-' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {{-- Payment Option Section --}}
+        <div class="review-section">
+            <div class="section-title">Phương thức thanh toán</div>
+            <div class="section-content">
+                <div class="vnpay-info-box" style="display: flex; align-items: center; gap: 15px;">
+                    <div class="payment-selection">
+                        <input type="radio" name="payment_method" value="vnpay" checked style="width: 20px; height: 20px; accent-color: #0056b3;">
+                    </div>
+                    <img src="{{ asset('images/logo_vnpay.png') }}" alt="VNPay" class="vnpay-logo-large" style="height: 40px;">
+                    <div class="vnpay-text">
+                        <p style="font-weight: 600; margin-bottom: 5px; color: #333;">Cổng thanh toán VNPay</p>
+                        <p style="font-size: 13px; color: #666; margin: 0;">Thanh toán an toàn qua Ứng dụng ngân hàng, Thẻ ATM, Visa, Master Card...</p>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; font-size: 13px; color: #666; font-style: italic;">
+                    * Lưu ý: Bạn sẽ được chuyển đến trang thanh toán của VNPay để hoàn tất giao dịch.
+                </div>
+            </div>
+        </div>
+
+        {{-- Term of Use Section --}}
+        <div class="review-section">
+            <div class="section-title">Điều khoản sử dụng</div>
+            <div class="section-content">
+                <div class="terms-box">
+                    <strong>Điều kiện sử dụng trang web</strong><br><br>
+                    Bằng việc truy cập và sử dụng trang web của chúng tôi cho bất kỳ mục đích tìm kiếm, tham khảo hoặc đặt
+                    vé nào, quý khách xác nhận rằng mình đã hiểu rõ và chấp nhận, cũng như đồng ý không vi phạm Các Điều
+                    khoản và Điều kiện của chúng tôi.<br><br>
+                    Chúng tôi khuyên quý khách nên đọc kỹ các điều khoản và điều kiện sau đây trước khi mua sản phẩm của
+                    chúng tôi. Nếu quý khách không đồng ý với bất kỳ phần nào, vui lòng rời khỏi trang web ngay lập
+                    tức.<br><br>
+                    Xin lưu ý rằng Hãng hàng không Philippine Airlines có quyền hủy hoặc chấm dứt bất kỳ yêu cầu đặt vé nào
+                    nếu rơi vào các trường hợp sau:<br>
+                    - (i) pháp luật yêu cầu.<br>
+                    - (ii) thanh toán không được thực hiện đúng hạn.<br>
+                    - (iii) vấn đề về còn chỗ của vé.<br>
+                    - (iv) lỗi hệ thống hoặc bất kỳ sự cố kỹ thuật nào có thể gây cản trở trong việc xử lý yêu cầu của khách
+                    hàng.
+                </div>
+                <label class="agree-checkbox">
+                    <input type="checkbox" id="agreeCheckbox" required>
+                    <span>Tôi đã đọc và đồng ý với tất cả <a href="#" style="color: #0056b3;">Điều khoản sử dụng</a> được
+                        quy định.</span>
+                </label>
+            </div>
+        </div>
+
+        <form action="{{ route('flights.payment') }}" method="POST" id="paymentForm">
+            @csrf
+            @foreach($passengerData as $key => $value)
+                @if(is_array($value))
+                    @php $flatArray = Arr::dot([$key => $value]); @endphp
+                    @foreach($flatArray as $flatKey => $flatValue)
+                        <input type="hidden" name="{{ $flatKey }}" value="{{ $flatValue }}">
+                    @endforeach
+                @else
+                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                @endif
+            @endforeach
+
+            <div class="clearfix" style="margin-top: 30px; margin-bottom: 50px;">
+                <button type="submit" id="btnContinue" class="btn-continue-review" disabled>Tiếp tục</button>
+            </div>
+        </form>
+    </div>
+@endsection
+
+@section('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const checkbox = document.getElementById('agreeCheckbox');
+            const btn = document.getElementById('btnContinue');
+
+            checkbox.addEventListener('change', function () {
+                btn.disabled = !this.checked;
+            });
+        });
+    </script>
 @endsection
