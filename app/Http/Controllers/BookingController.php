@@ -81,6 +81,7 @@ class BookingController extends Controller
                 'passenger_email' => $request->passenger_email,
                 'passenger_phone' => ($request->passenger_country_code ?? '') . ' ' . $request->passenger_phone,
                 'passenger_gender' => $passengerGender,
+                'passenger_details' => $request->input('passengers'),
                 'notes' => $request->notes,
             ]);
 

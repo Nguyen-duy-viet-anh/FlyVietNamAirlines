@@ -273,16 +273,20 @@
 
         <form action="{{ route('flights.payment') }}" method="POST" id="paymentForm">
             @csrf
-            @foreach($passengerData as $key => $value)
-                @if(is_array($value))
-                    @php $flatArray = Arr::dot([$key => $value]); @endphp
-                    @foreach($flatArray as $flatKey => $flatValue)
-                        <input type="hidden" name="{{ $flatKey }}" value="{{ $flatValue }}">
-                    @endforeach
-                @else
-                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                @endif
-            @endforeach
+            {{-- Correctly pass all passenger and booking data through hidden fields --}}
+            @php
+                function renderInputs($data, $prefix = '') {
+                    foreach ($data as $key => $value) {
+                        $name = $prefix ? $prefix . '[' . $key . ']' : $key;
+                        if (is_array($value)) {
+                            renderInputs($value, $name);
+                        } else {
+                            echo '<input type="hidden" name="' . $name . '" value="' . e($value) . '">';
+                        }
+                    }
+                }
+                renderInputs($passengerData);
+            @endphp
 
             <div class="clearfix" style="margin-top: 30px; margin-bottom: 50px;">
                 <button type="submit" id="btnContinue" class="btn-continue-review" disabled>Tiếp tục</button>

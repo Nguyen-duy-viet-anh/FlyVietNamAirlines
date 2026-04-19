@@ -94,50 +94,79 @@ function updateAirportOptions(targetSelect, excludeValue) {
 
 // ===== Passenger Helpers =====
 // - Update child/infant options and validate counts
-function updateChildOptions(childSelect, adultCount) {
+function updateAdultOptions(adultSelect, childCount = 0, infantCount = 0) {
+    if (!adultSelect) return;
+    const currentValue = parseInt(adultSelect.value) || 1;
+    // Tối thiểu: 1 người lớn, và phải >= số trẻ sơ sinh
+    const minAdult = Math.max(1, infantCount);
+    // Tối đa: 9 - Trẻ em - Sơ sinh
+    const maxAdult = 9 - childCount - infantCount;
+
+    adultSelect.innerHTML = '';
+    for (let i = minAdult; i <= Math.max(minAdult, maxAdult); i++) {
+        const option = new Option(i.toString(), i, false, i === currentValue);
+        adultSelect.appendChild(option);
+    }
+}
+
+function updateChildOptions(childSelect, adultCount, infantCount = 0) {
     if (!childSelect) return;
-    const maxChild = 9 - adultCount;
+    // Tối đa: 9 - Người lớn - Sơ sinh
+    const maxChild = 9 - adultCount - infantCount;
     const currentValue = parseInt(childSelect.value) || 0;
 
-    childSelect.innerHTML = '<option value="0">0</option>';
-
+    childSelect.innerHTML = '';
     for (let i = 0; i <= Math.max(0, maxChild); i++) {
         const option = new Option(i.toString(), i, false, i === currentValue);
         childSelect.appendChild(option);
     }
 }
 
-function updateInfantOptions(infantSelect, adultCount) {
+function updateInfantOptions(infantSelect, adultCount, childCount = 0) {
     if (!infantSelect) return;
+    // Quy tắc: Sơ sinh <= Người lớn VÀ Tổng <= 9
+    // => Sơ sinh <= min(Người lớn, 9 - Người lớn - Trẻ em)
+    const maxInfant = Math.min(adultCount, 9 - adultCount - childCount);
     const currentValue = parseInt(infantSelect.value) || 0;
 
-    infantSelect.innerHTML = '<option value="0">0</option>';
-
-    for (let i = 0; i <= adultCount; i++) {
+    infantSelect.innerHTML = '';
+    for (let i = 0; i <= Math.max(0, maxInfant); i++) {
         const option = new Option(i.toString(), i, false, i === currentValue);
         infantSelect.appendChild(option);
     }
 }
 
-/** Validate passenger counts: infants <= adults; adults+children <= 9 */
+/** Validate passenger counts: infants <= adults; total passengers <= 9 */
 function validatePassengerCounts(form) {
-    const adult = parseInt(form.querySelector('#adult_count').value) || 0;
-    const child = parseInt(form.querySelector('#child_count').value) || 0;
-    const infant = parseInt(form.querySelector('#infant_count').value) || 0;
-    const errorEl = form.querySelector('#infantError');
+    const adultSelect = form.querySelector('#adult_count');
+    const childSelect = form.querySelector('#child_count');
+    const infantSelect = form.querySelector('#infant_count');
+    const infantError = form.querySelector('#infantError');
+    const submitBtn = form.querySelector('button[type="submit"]');
 
+    if (!adultSelect || !infantSelect) return true;
+
+    const adult = parseInt(adultSelect.value) || 0;
+    const infant = parseInt(infantSelect.value) || 0;
+
+    let isValid = true;
+
+    // 1. Kiểm tra sơ sinh <= người lớn (dù dropdown đã hạn chế nhưng vẫn check cho chắc)
     if (infant > adult) {
-        if (errorEl) errorEl.style.display = 'block';
-        return false;
+        if (infantError) infantError.classList.remove('hidden');
+        isValid = false;
+    } else {
+        if (infantError) infantError.classList.add('hidden');
     }
 
-    if (adult + child > 9) {
-        alert('Tổng số người lớn và trẻ em không được vượt quá 9 người!');
-        return false;
+    // Cập nhật trạng thái nút bấm
+    if (submitBtn) {
+        submitBtn.disabled = !isValid;
+        submitBtn.style.opacity = isValid ? '1' : '0.5';
+        submitBtn.style.cursor = isValid ? 'pointer' : 'not-allowed';
     }
 
-    if (errorEl) errorEl.style.display = 'none';
-    return true;
+    return isValid;
 }
 
 // ===== Date Helpers =====
@@ -149,16 +178,16 @@ function addDays(dateStr, days) {
     return d.toISOString().slice(0,10);
 }
 
-/** Sync return date min to departure date (return >= departure + 1 day) */
+/** Sync return date min to departure date (return >= departure) */
 function syncReturnDate(departureInput, returnInput) {
     if (!departureInput || !returnInput) return;
     const departValue = departureInput.value;
 
     if (departValue) {
-        const minReturn = addDays(departValue, 1); // must be after departure
-        returnInput.min = minReturn;
-        if (returnInput.value && returnInput.value <= departValue) {
-            returnInput.value = minReturn;
+        // Cho phép ngày về tối thiểu là bằng ngày đi
+        returnInput.min = departValue;
+        if (returnInput.value && returnInput.value < departValue) {
+            returnInput.value = departValue;
         }
     } else {
         // when no departure selected, allow return from today (or server-provided min)
@@ -166,7 +195,7 @@ function syncReturnDate(departureInput, returnInput) {
     }
 }
 
-/** Validate departure/return dates: return must be strictly after departure */
+/** Validate departure/return dates: return must not be before departure */
 function validateDates(form) {
     const departInput = form.querySelector('input[name="departure_date"]');
     const returnInput = form.querySelector('input[name="return_date"]');
@@ -175,8 +204,8 @@ function validateDates(form) {
     const depart = departInput.value;
     const ret = returnInput.value;
     if (depart && ret) {
-        if (ret <= depart) {
-            alert('Ngày về phải sau ngày đi!');
+        if (ret < depart) {
+            alert('Ngày về không được trước ngày đi!');
             return false;
         }
     }
@@ -185,131 +214,130 @@ function validateDates(form) {
 
 // ===== Initialization =====
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('flightHelper.js: DOMContentLoaded triggered');
+    
+    // Tìm tất cả các form tìm kiếm trên trang
     const searchForms = document.querySelectorAll('#searchForm');
-    searchForms.forEach(form => {
-        // Form submit
-        form.addEventListener('submit', function(e) {
-            if (!validatePassengerCounts(this) || !validateDates(this)) {
-                e.preventDefault();
-            }
-        });
+    console.log('flightHelper.js: Found search forms:', searchForms.length);
 
-        // Airport dynamic exclude
-        const originSelect = form.querySelector('#origin_id');
-        const destinationSelect = form.querySelector('#destination_id');
-        
-        if (originSelect) {
-            originSelect.addEventListener('change', function() {
-                if (destinationSelect) {
-                    updateAirportOptions(destinationSelect, this.value);
-                }
-            });
-        }
-        
-        if (destinationSelect) {
-            destinationSelect.addEventListener('change', function() {
-                if (originSelect) {
-                    updateAirportOptions(originSelect, this.value);
-                }
-            });
-        }
+    searchForms.forEach((form, index) => {
+        console.log(`flightHelper.js: Initializing form #${index}`);
 
-        // Initial hide: don't show origin choice in destination and vice-versa
-        if (originSelect && destinationSelect) {
-            updateAirportOptions(destinationSelect, originSelect.value);
-            updateAirportOptions(originSelect, destinationSelect.value);
-        }
-        
-        // Passenger dynamic
         const adultSelect = form.querySelector('#adult_count');
         const childSelect = form.querySelector('#child_count');
         const infantSelect = form.querySelector('#infant_count');
-        
+        const originSelect = form.querySelector('#origin_id');
+        const destinationSelect = form.querySelector('#destination_id');
+        const departureInput = form.querySelector('input[name="departure_date"]');
+        const returnInput = form.querySelector('input[name="return_date"]');
+
+        // 1. Logic Thay đổi số lượng khách
         if (adultSelect) {
             adultSelect.addEventListener('change', function() {
-                const adultValue = parseInt(this.value) || 1;
-                if (childSelect) updateChildOptions(childSelect, adultValue);
-                if (infantSelect) updateInfantOptions(infantSelect, adultValue);
+                const adultVal = parseInt(this.value) || 1;
+                const childVal = childSelect ? (parseInt(childSelect.value) || 0) : 0;
+                const infantVal = infantSelect ? (parseInt(infantSelect.value) || 0) : 0;
+                
+                console.log('flightHelper.js: Adult count changed to:', adultVal);
+                if (childSelect) updateChildOptions(childSelect, adultVal, infantVal);
+                if (infantSelect) updateInfantOptions(infantSelect, adultVal, childVal);
                 validatePassengerCounts(form);
             });
         }
         
         if (childSelect) {
-            childSelect.addEventListener('change', () => validatePassengerCounts(form));
+            childSelect.addEventListener('change', function() {
+                const adultVal = adultSelect ? (parseInt(adultSelect.value) || 1) : 1;
+                const childVal = parseInt(this.value) || 0;
+                const infantVal = infantSelect ? (parseInt(infantSelect.value) || 0) : 0;
+                
+                console.log('flightHelper.js: Child count changed to:', childVal);
+                // Khi đổi Trẻ em, cần cập nhật lại giới hạn cho Người lớn và Sơ sinh
+                if (adultSelect) updateAdultOptions(adultSelect, childVal, infantVal);
+                if (infantSelect) updateInfantOptions(infantSelect, adultVal, childVal);
+                validatePassengerCounts(form);
+            });
         }
         
         if (infantSelect) {
-            infantSelect.addEventListener('change', () => validatePassengerCounts(form));
+            infantSelect.addEventListener('change', function() {
+                const adultVal = adultSelect ? (parseInt(adultSelect.value) || 1) : 1;
+                const childVal = childSelect ? (parseInt(childSelect.value) || 0) : 0;
+                const infantVal = parseInt(this.value) || 0;
+
+                console.log('flightHelper.js: Infant count changed to:', infantVal);
+                // Khi đổi Sơ sinh, cần cập nhật lại giới hạn cho Người lớn và Trẻ em
+                if (adultSelect) updateAdultOptions(adultSelect, childVal, infantVal);
+                if (childSelect) updateChildOptions(childSelect, adultVal, infantVal);
+                validatePassengerCounts(form);
+            });
         }
+
+        // Chạy kiểm tra và cập nhật ban đầu ngay khi load
+        const initialAdult = parseInt(adultSelect?.value) || 1;
+        const initialChild = parseInt(childSelect?.value) || 0;
+        const initialInfant = parseInt(infantSelect?.value) || 0;
         
-        // Date restriction: return date > departure date
-        const departureInput = form.querySelector('input[name="departure_date"]');
-        const returnInput = form.querySelector('input[name="return_date"]');
+        if (adultSelect) updateAdultOptions(adultSelect, initialChild, initialInfant);
+        if (childSelect) updateChildOptions(childSelect, initialAdult, initialInfant);
+        if (infantSelect) updateInfantOptions(infantSelect, initialAdult, initialChild);
+        validatePassengerCounts(form);
+
+        // 2. Logic Sân bay (Exclusion)
+        if (originSelect && destinationSelect) {
+            originSelect.addEventListener('change', function() {
+                updateAirportOptions(destinationSelect, this.value);
+            });
+            destinationSelect.addEventListener('change', function() {
+                updateAirportOptions(originSelect, this.value);
+            });
+            // Initial state
+            updateAirportOptions(destinationSelect, originSelect.value);
+            updateAirportOptions(originSelect, destinationSelect.value);
+        }
+
+        // 3. Logic Ngày tháng
         if (departureInput && returnInput) {
             departureInput.addEventListener('change', function() {
                 syncReturnDate(departureInput, returnInput);
             });
-            // Initial sync
             syncReturnDate(departureInput, returnInput);
         }
 
-        // Flight Type Toggle (One-way / Round-trip)
-        const flightTypeRadios = form.querySelectorAll('input[name="flight_type"]');
-        const returnDateGroup = form.querySelector('input[name="return_date"]')?.closest('.form-group');
+        // 4. Logic Đổi sân bay (Swap)
+        const swapButtons = form.querySelectorAll('.swap-btn');
+        swapButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                swapAirports(form);
+            });
+        });
 
+        // 5. Logic Loại hành trình (Một chiều / Khứ hồi)
+        const flightTypeRadios = form.querySelectorAll('input[name="flight_type"]');
         function updateFlightTypeUI() {
             const selectedType = form.querySelector('input[name="flight_type"]:checked')?.value;
             const isOneWay = (selectedType === 'one_way');
-
-            // Bật/tắt class CSS trên form
             form.classList.toggle('is-one-way', isOneWay);
-
-            // Xử lý các thay đổi phụ trợ
-            const returnInput = form.querySelector('input[name="return_date"]');
             if (returnInput) {
-                if (isOneWay) {
-                    returnInput.value = '';
-                    returnInput.required = false;
-                } else {
-                    returnInput.required = true;
-                }
+                returnInput.value = isOneWay ? '' : returnInput.value;
+                returnInput.required = !isOneWay;
             }
-
-            // Cập nhật class active cho label
-            flightTypeRadios.forEach(r => {
-                r.closest('label').classList.toggle('active', r.checked);
-            });
+            flightTypeRadios.forEach(r => r.closest('label')?.classList.toggle('active', r.checked));
         }
-
-        flightTypeRadios.forEach(radio => {
-            radio.addEventListener('change', updateFlightTypeUI);
-        });
-
-        // Initial UI state
+        flightTypeRadios.forEach(radio => radio.addEventListener('change', updateFlightTypeUI));
         updateFlightTypeUI();
 
-        // Ensure swap buttons call swapAirports reliably (avoid relying on inline onclick)
-        const swapButtons = form.querySelectorAll('.swap-btn');
-        swapButtons.forEach((btn, idx) => {
-            // force visual debug styles in case an overlay blocks clicks
-            try { btn.style.zIndex = 9999; btn.style.position = 'relative'; } catch (err) {}
-            btn.addEventListener('click', function(e) {
+        // 6. Chặn Submit nếu không hợp lệ
+        form.addEventListener('submit', function(e) {
+            console.log('flightHelper.js: Form submit triggered');
+            if (!validatePassengerCounts(form) || !validateDates(form)) {
+                console.warn('flightHelper.js: Validation failed, stopping submit');
                 e.preventDefault();
-                console.log('flightHelper.js: swap button clicked', idx);
-                console.log('flightHelper.js: origin/destination before', {
-                    origin: form.querySelector('#origin_id')?.value,
-                    destination: form.querySelector('#destination_id')?.value
-                });
-                try {
-                    swapAirports(form);
-                } catch (err) {
-                    console.error('swapAirports error:', err);
-                }
-                console.log('flightHelper.js: origin/destination after', {
-                    origin: form.querySelector('#origin_id')?.value,
-                    destination: form.querySelector('#destination_id')?.value
-                });
-            });
+            }
         });
+
+        // Chạy kiểm tra ban đầu ngay khi load
+        validatePassengerCounts(form);
     });
 });

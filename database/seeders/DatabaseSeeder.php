@@ -29,7 +29,6 @@ class DatabaseSeeder extends Seeder
             ['code' => 'VJ', 'name' => 'Vietjet Air', 'created_at' => now(), 'updated_at' => now()],
             ['code' => 'QH', 'name' => 'Bamboo Airways', 'created_at' => now(), 'updated_at' => now()],
             ['code' => 'VU', 'name' => 'Vietravel Airlines', 'created_at' => now(), 'updated_at' => now()],
-            ['code' => 'BL', 'name' => 'Pacific Airlines', 'created_at' => now(), 'updated_at' => now()],
         ]);
 
         // 3. TẠO SÂN BAY VÀ DANH LAM THẮNG CẢNH (LƯU DẠNG JSON)

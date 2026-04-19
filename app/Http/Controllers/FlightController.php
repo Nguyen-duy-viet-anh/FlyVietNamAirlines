@@ -10,6 +10,24 @@ class FlightController extends Controller
 {
     public function search(Request $request)
     {
+        // Kiểm tra logic số lượng khách: 
+        // 1. Sơ sinh không được lớn hơn Người lớn
+        // 2. Tổng số khách (Người lớn + Trẻ em + Sơ sinh) <= 9
+        $totalPax = $request->adult_count + $request->child_count + $request->infant_count;
+        if ($request->infant_count > $request->adult_count || $totalPax > 9) {
+            $errors = [];
+            if ($request->infant_count > $request->adult_count) {
+                $errors['infant_count'] = 'Số lượng trẻ sơ sinh không được vượt quá số lượng người lớn.';
+            }
+            if ($totalPax > 9) {
+                $errors['total_pax'] = 'Tổng số khách không được vượt quá 9 người.';
+            }
+
+            return redirect()->back()
+                ->withErrors($errors)
+                ->withInput();
+        }
+
         // Bắt thông số từ Form tìm kiếm
         $outboundFlightId = $request->outbound_flight_id;
         $returnFlightId = $request->return_flight_id;

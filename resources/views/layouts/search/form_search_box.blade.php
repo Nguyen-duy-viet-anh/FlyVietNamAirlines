@@ -78,6 +78,7 @@
                 @endfor
             </select>
             <small class="text-danger hidden" id="infantError">Sơ sinh không được lớn hơn người lớn!</small>
+            <small class="text-danger hidden" id="infantError">Sơ sinh không được lớn hơn người lớn!</small>
         </div>
         <div style="align-self: end; margin-bottom: 13px;">
             <button type="submit" class="btn btn-primary btn-large hero-btn" style="width: 100%;">Tìm chuyến bay</button>

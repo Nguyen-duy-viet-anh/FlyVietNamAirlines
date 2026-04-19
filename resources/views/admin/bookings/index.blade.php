@@ -24,7 +24,7 @@
                     {{ $booking->outboundFlight->origin->code }} → {{ $booking->outboundFlight->destination->code }}
                     @if($booking->flight_type == 'round_trip') <br><small>(Khứ hồi)</small> @endif
                 </td>
-                <td class="danger-text" style="font-weight:bold;">{{ number_format($booking->total_amount, 0, ',', '.') }}đ</td>
+                <td class="danger-text text-bold text-danger">{{ number_format($booking->total_amount, 0, ',', '.') }}đ</td>
                 <td>
                     @if($booking->status == 'confirmed') <span class="badge badge-confirmed">Đã xác nhận</span>
                     @elseif($booking->status == 'cancelled') <span class="badge badge-cancelled">Đã hủy</span>
@@ -36,14 +36,14 @@
                     
                     <br>
                     @if($booking->ticket_class == 'business')
-                        <span style="color: #d35400; font-weight: bold; font-size: 12px;">Thương gia</span>
+                        <span class="text-orange-bold text-small">Thương gia</span>
                     @else
-                        <span style="color: #7f8c8d; font-size: 12px;">Phổ thông</span>
+                        <span class="text-gray-small text-small">Phổ thông</span>
                     @endif
                 </td>
                 <td>
-                    @if($booking->payment_status == 'paid') <span style="color: green;">Đã thanh toán</span>
-                    @else <span style="color: red;">Chưa TT</span> @endif
+                    @if($booking->payment_status == 'paid') <span class="text-green">Đã thanh toán</span>
+                    @else <span class="text-danger">Chưa TT</span> @endif
                 </td>
                 <td>
                     <a href="{{ route('admin.bookings.show', $booking->id) }}" class="btn btn-primary">Xem chi tiết</a>
@@ -53,7 +53,7 @@
         </tbody>
     </table>
     
-    <div style="margin-top: 20px;">
+    <div class="mt-20">
         {{ $bookings->links() }}
     </div>
 </div>

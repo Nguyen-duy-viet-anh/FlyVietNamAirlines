@@ -12,6 +12,10 @@ class AppBooking extends Model
     // Cho phép insert dữ liệu vào tất cả các cột
     protected $guarded = [];
 
+    protected $casts = [
+        'passenger_details' => 'array',
+    ];
+
     /**
      * Mối quan hệ: Đơn vé -> Chuyến bay ĐI
      */

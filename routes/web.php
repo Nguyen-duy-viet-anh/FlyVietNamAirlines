@@ -44,6 +44,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/airports', [App\Http\Controllers\Admin\AirportController::class, 'index'])->name('airports.index');
     Route::get('/airports/{id}/edit', [App\Http\Controllers\Admin\AirportController::class, 'edit'])->name('airports.edit');
     Route::put('/airports/{id}', [App\Http\Controllers\Admin\AirportController::class, 'update'])->name('airports.update');
+
+    // API Biểu đồ
+    Route::get('/chart-data', [DashboardController::class, 'getChartData'])->name('chart_data');
 });
 // Đặt vé
 Route::get('/flights/book', [BookingController::class, 'showBookForm'])->name('flights.book');
