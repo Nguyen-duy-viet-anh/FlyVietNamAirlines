@@ -29,7 +29,7 @@
                 @endforeach
             </select>
         </div>
-        <div class="swap-column" style="margin-bottom: 15px;">
+        <div class="swap-column mb-15">
             <button type="button" class="swap-btn"><i class="fas fa-exchange-alt"></i></button>
         </div>
         <div class="form-group">
@@ -78,10 +78,9 @@
                 @endfor
             </select>
             <small class="text-danger hidden" id="infantError">Sơ sinh không được lớn hơn người lớn!</small>
-            <small class="text-danger hidden" id="infantError">Sơ sinh không được lớn hơn người lớn!</small>
         </div>
-        <div style="align-self: end; margin-bottom: 13px;">
-            <button type="submit" class="btn btn-primary btn-large hero-btn" style="width: 100%;">Tìm chuyến bay</button>
+        <div class="w-full align-end mb-13">
+            <button type="submit" class="btn btn-primary btn-large hero-btn w-full">Tìm chuyến bay</button>
         </div>
     </div>
 </form>

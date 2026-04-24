@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Flight;
 use App\Models\Airport;
 use Illuminate\Http\Request;
-
 class FlightController extends Controller
 {
     public function search(Request $request)
@@ -102,6 +101,6 @@ class FlightController extends Controller
 
         $airports = Airport::all();
 
-        return view('flights.search', compact('flights', 'step', 'title', 'request', 'outboundFlightId', 'outboundFlight', 'returnFlightId', 'returnFlight', 'airports', 'noReturnAvailable'));
+        return view('flights.search.index', compact('flights', 'step', 'title', 'request', 'outboundFlightId', 'outboundFlight', 'returnFlightId', 'returnFlight', 'airports', 'noReturnAvailable'));
     }
 }

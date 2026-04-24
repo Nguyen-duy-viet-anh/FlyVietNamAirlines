@@ -1,26 +1,32 @@
 @extends('layouts.public')
 
 @section('content')
-<div class="card" style="text-align: center; padding: 50px 20px;">
-    @if(str_contains($message, 'thành công'))
-        <h2 class="success-text" style="font-size:28px; margin-top:10px;">Thanh toán thành công!</h2>
-        <p style="font-size: 18px; margin-top: 20px;">Cảm ơn anh/chị <strong>{{ $booking->passenger_name }}</strong> đã đặt vé.</p>
+<div class="container success-wrapper">
+    <div class="success-card">
         
-            <div class="panel-muted" style="display:inline-block; margin-top:20px; text-align:left;">
-                <p><strong>Mã đặt vé (PNR):</strong> <span class="highlight" style="font-size:24px;">{{ $booking->booking_code }}</span></p>
-                <p><strong>Hành khách:</strong> {{ $booking->passenger_name }}</p>
-                <p><strong>Email:</strong> {{ $booking->passenger_email }}</p>
-                <p><strong>Tổng tiền:</strong> {{ number_format($booking->total_amount, 0, ',', '.') }} VNĐ</p>
-            </div>
-            <p class="muted" style="margin-top:20px;">Một email chứa thông tin vé điện tử sẽ được gửi tới hòm thư <b>{{ $booking->passenger_email }}</b> của bạn.</p>
-    @else
-        <h2 class="danger-text" style="font-size:28px; margin-top:10px;">Thanh toán Thất bại</h2>
-        <p style="font-size: 18px; margin-top: 20px;">Giao dịch đã bị hủy hoặc có lỗi xảy ra từ ngân hàng.</p>
-        <p style="margin-top: 20px; color: #666;">Vui lòng kiểm tra lại số dư hoặc thử lại sau.</p>
-    @endif
+        @if(str_contains($message, 'thành công'))
+            <h2 class="success-title">Giao dịch thành công</h2>
+            
+            <p class="success-text">Xin chào <strong>{{ $booking->passenger_name }}</strong>,</p>
+            <p class="success-subtext">Chuyến bay của bạn đã được đặt thành công. Hệ thống đã gửi thông tin vé điện tử về địa chỉ email của bạn.</p>
 
-    <div style="margin-top: 30px;">
-           <a href="/" class="btn btn-primary" style="text-decoration: none;">Về Trang Chủ</a>
+            <div class="pnr-box">
+                <p class="pnr-label">Mã đặt vé (PNR)</p>
+                <strong class="pnr-code">{{ $booking->booking_code }}</strong>
+            </div>
+
+            <div class="summary-details">
+                <p class="summary-row">Hành khách: <span>{{ $booking->passenger_name }}</span></p>
+                <p class="summary-row">Đã thanh toán: <span>{{ number_format($booking->total_amount, 0, ',', '.') }} VND</span></p>
+            </div>
+        @else
+            <h2 class="error-title">Thanh toán chưa hoàn tất</h2>
+            <p class="success-subtext">Giao dịch thanh toán đã bị hủy hoặc gặp lỗi kỹ thuật. Vui lòng kiểm tra lại tài khoản hoặc thử lại sau.</p>
+        @endif
+
+        <div class="success-footer">
+            <a href="/" class="back-link">Quay lại trang chủ</a>
+        </div>
     </div>
 </div>
 @endsection

@@ -24,8 +24,8 @@ class FlightSeeder extends Seeder
             return;
         }
 
-        $totalFlights = 10000;
-        $chunkSize = 1000; // Mỗi lần insert 1000 bản ghi để chống tràn RAM
+        $totalFlights = 50000;
+        $chunkSize = 1000;
 
         $flightsData = [];
         $segmentsData = [];

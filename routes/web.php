@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\FlightController;
 use App\Http\Controllers\BookingController;
@@ -26,9 +26,6 @@ Route::match(['get', 'post'], '/vnpay/ipn', [PaymentController::class, 'vnpayIpn
 
 // Khách hàng (Cần đăng nhập)
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/my-bookings', [BookingController::class, 'myBookings'])->name('my.bookings');
 });
 
@@ -44,6 +41,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/airports', [App\Http\Controllers\Admin\AirportController::class, 'index'])->name('airports.index');
     Route::get('/airports/{id}/edit', [App\Http\Controllers\Admin\AirportController::class, 'edit'])->name('airports.edit');
     Route::put('/airports/{id}', [App\Http\Controllers\Admin\AirportController::class, 'update'])->name('airports.update');
+
+    // Log Thanh toán
 
     // API Biểu đồ
     Route::get('/chart-data', [DashboardController::class, 'getChartData'])->name('chart_data');

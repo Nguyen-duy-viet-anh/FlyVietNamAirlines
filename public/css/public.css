@@ -2,7 +2,7 @@
 .banner-hero {
   height: 70vh;
   min-height: 550px;
-  background: linear-gradient(rgba(0, 86, 179, 0.8), rgba(0, 86, 179, 0.6)), url('../images/banner-bg.jpg');
+  background: linear-gradient(rgba(0, 50, 120, 0.5), rgba(0, 50, 120, 0.3)), url('../images/img-banner-hanoi.png');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -26,10 +26,6 @@
 }
 
 .hero-form {
-  background: url('../images/banner-bg.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   border-radius: 20px;
   padding: 1.5rem;
   border: 1px solid rgba(255, 255, 255, 0.5);
@@ -95,6 +91,7 @@
 }
 
 .swap-btn {
+  top:-15px;
   background: rgba(255, 255, 255, 0.2);
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.5);
@@ -232,7 +229,7 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background-color: #0056b3;
+  background-color: #ffffff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 1rem 0;
 }
@@ -258,7 +255,6 @@
     top: 100%;
     left: 0;
     right: 0;
-    background: #0056b3;
     padding: 1rem;
   }
 }
@@ -282,8 +278,27 @@ body {
   overflow-x: hidden; /* Prevent horizontal scrollbar flickering from 100vw elements */
 }
 
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #000;
+  text-decoration: none;
+}
+
+.nav-link {
+  color: #000;
+  text-decoration: none;
+  margin-left: 1.5rem;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.nav-link:hover {
+  color: #333;
+}
+
 .navbar a {
-  color: white;
+  color: #000;
   text-decoration: none;
   padding: 0.5rem 1rem;
   border-radius: 5px;
@@ -291,7 +306,7 @@ body {
 }
 
 .navbar a:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .radio-row {
@@ -1007,3 +1022,150 @@ body {
   .flight-table td { display: block; width: 100% !important; border: none; border-bottom: 1px solid #f9f9f9; text-align: left; }
   .fare-col { border-left: none; }
 }
+
+/* Success Page Styles */
+.success-wrapper {
+  max-width: 600px;
+  margin: 80px auto;
+}
+
+.success-card {
+  border: 1px solid #eee;
+  padding: 45px;
+  background: #fff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+}
+
+.success-title {
+  font-size: 24px;
+  margin-bottom: 25px;
+  color: #1a4f8b;
+  font-weight: 700;
+}
+
+.error-title {
+  font-size: 24px;
+  margin-bottom: 25px;
+  color: #b52a37;
+  font-weight: 700;
+}
+
+.success-text {
+  color: #444;
+}
+
+.success-subtext {
+  margin-top: 10px;
+  line-height: 1.6;
+  color: #666;
+}
+
+.pnr-box {
+  background: #f8f9fa;
+  border-left: 4px solid #1a4f8b;
+  margin: 35px 0;
+  padding: 25px;
+}
+
+.pnr-label {
+  color: #1a4f8b;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.pnr-code {
+  font-size: 30px;
+  color: #222;
+  letter-spacing: 1px;
+}
+
+.summary-details {
+  text-align: left;
+  margin: 20px 0;
+  font-size: 15px;
+}
+
+.summary-row {
+  margin-bottom: 12px;
+  color: #555;
+}
+
+.summary-row span {
+  color: #000;
+  font-weight: 500;
+}
+
+.success-footer {
+  margin-top: 50px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 30px;
+}
+
+.back-link {
+  color: #1a4f8b;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+/* Global Utility & Shared Booking Classes */
+.text-bold { font-weight: 600; }
+.text-bolder { font-weight: 700; }
+.text-muted { color: #666; }
+.text-light { color: #888; }
+.text-primary { color: #0056b3; }
+.text-danger { color: #d84a1d; }
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.mt-5 { margin-top: 5px; }
+.mt-10 { margin-top: 10px; }
+.mt-15 { margin-top: 15px; }
+.mt-20 { margin-top: 20px; }
+.mt-25 { margin-top: 25px; }
+.mt-30 { margin-top: 30px; }
+.mb-5 { margin-bottom: 5px; }
+.mb-10 { margin-bottom: 10px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-20 { margin-bottom: 20px; }
+.display-block { display: block; }
+.flex-center { display: flex; align-items: center; gap: 10px; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+
+/* Summary Panel Specifics */
+.summary-class-info { font-weight: 600; font-size: 14px; margin-top: 10px; }
+.summary-luggage-info { font-size: 13px; color: #666; margin-top: 5px; }
+.summary-placeholder { opacity: 0.7; border: 1px dashed #007bff; background: #f0f7ff; }
+.summary-selecting-text { text-align: center; margin-top: 15px; color: #007bff; font-weight: 600; }
+.summary-empty-box { text-align: center; padding: 40px; color: #999; }
+.price-breakdown-title { font-weight: 700; margin-bottom: 12px; color: #333; font-size: 15px; }
+.price-row-detail { padding-left: 20px; font-size: 13px; color: #666; margin-top: -5px; }
+.price-row-detail-compact { padding-left: 20px; font-size: 13px; color: #666; margin-top: -8px; }
+.price-row-total { border-top: 1px dashed #ddd; margin-top: 10px; padding-top: 10px; font-weight: 700; }
+.grand-total-row { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; border-top: 2px solid #0066cc; padding-top: 20px; }
+.grand-total-label { font-size: 18px; font-weight: 700; color: #003366; }
+
+/* Review Cards Specifics */
+.review-table th.col-pax { width: 150px; }
+.review-table th.col-type { width: 120px; }
+.pax-label { font-weight: 600; color: #0056b3; }
+.pax-title { color: #666; }
+
+/* Payment Methods Specifics */
+.payment-box { display: flex; align-items: center; gap: 15px; }
+.payment-radio-custom { width: 20px; height: 20px; accent-color: #0056b3; }
+.payment-logo-large { height: 40px; }
+.payment-notice-box { margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; font-size: 13px; color: #666; font-style: italic; }
+
+/* No Results Specifics */
+.no-results-alert { margin-top: 50px; text-align: center; padding: 40px; border-radius: 8px; border: 1px dashed #f05a28; background: #fff5f2; }
+.no-results-icon { font-size: 40px; margin-bottom: 20px; display: block; color: #f05a28; }
+.no-results-list { display: inline-block; text-align: left; color: #555; }
+
+/* Flight List Snippets */
+.icon-return { transform: rotate(180deg); }
+.airline-logo-xs { width: 20px; height: 20px; flex-shrink: 0; object-fit: contain; }

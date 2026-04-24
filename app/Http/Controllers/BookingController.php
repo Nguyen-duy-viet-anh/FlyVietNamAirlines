@@ -17,18 +17,18 @@ class BookingController extends Controller
         $outboundFlight = Flight::find($request->outbound_flight_id);
         $returnFlight = $request->return_flight_id ? Flight::find($request->return_flight_id) : null;
 
-        $adultCount = (int)$request->adult_count ?? 1;
-        $childCount = (int)$request->child_count ?? 0;
-        $infantCount = (int)$request->infant_count ?? 0;
+        $adultCount = (int) $request->adult_count ?? 1;
+        $childCount = (int) $request->child_count ?? 0;
+        $infantCount = (int) $request->infant_count ?? 0;
         $ticketClass = $request->ticket_class ?? 'economy';
 
         // 1. USE UNIFIED HELPER
         $priceBreakdown = \App\Helpers\FlightPriceHelper::calculate(
-            $outboundFlight, 
-            $returnFlight, 
-            $adultCount, 
-            $childCount, 
-            $infantCount, 
+            $outboundFlight,
+            $returnFlight,
+            $adultCount,
+            $childCount,
+            $infantCount,
             $ticketClass
         );
 
@@ -37,7 +37,7 @@ class BookingController extends Controller
         $bookingData = $request->all();
         $bookingData['total_amount'] = $totalAmount;
 
-        return view('flights.book', compact('outboundFlight', 'returnFlight', 'bookingData', 'priceBreakdown'));
+        return view('flights.passenger.book', compact('outboundFlight', 'returnFlight', 'bookingData', 'priceBreakdown'));
     }
 
     // 3. Xử lý Lưu Database & Tạo URL VNPay (Sau khi khách bấm xác nhận ở trang Review)
@@ -46,7 +46,8 @@ class BookingController extends Controller
         try {
             DB::beginTransaction();
 
-            $bookingCode = 'BKG-' . strtoupper(Str::random(8));
+            // Tạo mã tạm thời
+            $bookingCode = 'TEMP-' . Str::random(5);
 
             // 1. Process primary passenger from the new nested structure
             $primaryAdult = $request->input('passengers.adult.1');
@@ -56,8 +57,10 @@ class BookingController extends Controller
             if ($primaryAdult) {
                 $passengerName = strtoupper($primaryAdult['title'] . ' ' . $primaryAdult['first_name'] . ' ' . $primaryAdult['last_name']);
                 $title = $primaryAdult['title'];
-                if ($title == 'Mr') $passengerGender = 'male';
-                elseif (in_array($title, ['Ms', 'Mdm', 'Miss'])) $passengerGender = 'female';
+                if ($title == 'Mr')
+                    $passengerGender = 'male';
+                elseif (in_array($title, ['Ms', 'Mdm', 'Miss']))
+                    $passengerGender = 'female';
             } else {
                 // Fallback for old form or missing data
                 $passengerName = $request->passenger_name ?? 'UNKNOWN';
@@ -84,6 +87,14 @@ class BookingController extends Controller
                 'passenger_details' => $request->input('passengers'),
                 'notes' => $request->notes,
             ]);
+
+            // Sau khi có ID, tạo mã PNR chính thức: [ĐI][ĐẾN]-[ID+1000]
+            $outbound = Flight::with(['origin', 'destination'])->find($request->outbound_flight_id);
+            $routePrefix = $outbound ? ($outbound->origin->code . $outbound->destination->code) : 'BKG';
+            $finalBookingCode = strtoupper($routePrefix) . '-' . (1000 + $booking->id);
+
+            // Cập nhật lại booking_code chính thức
+            $booking->update(['booking_code' => $finalBookingCode]);
 
             $transactionCode = time() . rand(100, 999);
             AppBookingTransaction::create([
@@ -114,7 +125,7 @@ class BookingController extends Controller
         $vnp_TxnRef = $transactionCode;
         $vnp_OrderInfo = "Thanh toan ve may bay " . $booking->booking_code;
         $vnp_OrderType = 'billpayment';
-        $vnp_Amount = $booking->total_amount * 100; // VNPay yêu cầu nhân 100
+        $vnp_Amount = (int) ($booking->total_amount * 100); // VNPay yêu cầu nhân 100
         $vnp_Locale = 'vn';
         $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
 
@@ -146,14 +157,12 @@ class BookingController extends Controller
             }
             $query .= urlencode($key) . "=" . urlencode($value) . '&';
         }
-
         $vnp_Url = $vnp_Url . "?" . $query;
         if (isset($vnp_HashSecret)) {
-            $vnpSecureHash =   hash_hmac('sha512', $hashdata, $vnp_HashSecret);
+            $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);
             $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
         }
 
-        // Redirect sang cổng VNPay
         return redirect()->away($vnp_Url);
     }
 
@@ -171,24 +180,24 @@ class BookingController extends Controller
 
         // 2. Lấy thông tin chuyến bay
         $outboundFlight = \App\Models\Flight::with(['airline', 'origin', 'destination'])
-                            ->find($request->outbound_flight_id);
-                            
-        $returnFlight = $request->return_flight_id 
-                            ? \App\Models\Flight::with(['airline', 'origin', 'destination'])->find($request->return_flight_id) 
-                            : null;
+            ->find($request->outbound_flight_id);
+
+        $returnFlight = $request->return_flight_id
+            ? \App\Models\Flight::with(['airline', 'origin', 'destination'])->find($request->return_flight_id)
+            : null;
 
         // 3. TÍNH LẠI BẢNG BÓC TÁCH GIÁ ĐỂ HIỂN THỊ Ở TRANG REVIEW (Bảo mật hơn)
-        $adultCount = (int)($request->adult_count ?? 1);
-        $childCount = (int)($request->child_count ?? 0);
-        $infantCount = (int)($request->infant_count ?? 0);
+        $adultCount = (int) ($request->adult_count ?? 1);
+        $childCount = (int) ($request->child_count ?? 0);
+        $infantCount = (int) ($request->infant_count ?? 0);
         $ticketClass = $request->ticket_class ?? 'economy';
 
         $priceBreakdown = \App\Helpers\FlightPriceHelper::calculate(
-            $outboundFlight, 
-            $returnFlight, 
-            $adultCount, 
-            $childCount, 
-            $infantCount, 
+            $outboundFlight,
+            $returnFlight,
+            $adultCount,
+            $childCount,
+            $infantCount,
             $ticketClass
         );
 
@@ -199,6 +208,6 @@ class BookingController extends Controller
         }
 
         // 4. Đẩy tất cả sang View Review
-        return view('flights.review', compact('passengerData', 'bookingData', 'outboundFlight', 'returnFlight', 'priceBreakdown'));
+        return view('flights.review.index', compact('passengerData', 'bookingData', 'outboundFlight', 'returnFlight', 'priceBreakdown'));
     }
 }

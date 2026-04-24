@@ -13,51 +13,77 @@ class FlightPriceHelper
 
     /**
      * Calculate comprehensive price breakdown for a flight selection
+     * NEW FORMULA:
+     * Adult = Base + Tax (120k) + Fee (50k)
+     * Child = 90% * Adult
+     * Infant = 10% * Adult + Tax (120k) + Fee (50k)
      */
     public static function calculate($outbound, $return = null, $adults = 1, $children = 0, $infants = 0, $ticketClass = 'economy')
     {
         $multiplier = ($ticketClass === 'business') ? self::BUSINESS_MULTIPLIER : 1;
         $segmentsCount = $return ? 2 : 1;
+        $fixedFees = self::TAX_PER_PERSON + self::SERVICE_FEE_PER_PERSON;
 
-        // 1. Base Fare Calculation (per person)
-        $outboundPrice = $outbound->price * $multiplier;
-        $returnPrice = $return ? ($return->price * $multiplier) : 0;
-        
-        $basePerAdult = $outboundPrice + $returnPrice;
-        $basePerChild = $basePerAdult * self::CHILD_BASE_PERCENT;
+        // --- 1. Outbound Leg Pricing ---
+        $outboundBase = $outbound->price * $multiplier;
+        $outboundAdult = $outboundBase + $fixedFees;
+        $outboundChild = $outboundAdult * 0.9;
+        $outboundInfant = ($outboundAdult * 0.1) + $fixedFees;
 
-        // 2. Aggregates
-        $totalBaseAdults = $basePerAdult * $adults;
-        $totalBaseChildren = $basePerChild * $children;
-        $totalBaseFare = $totalBaseAdults + $totalBaseChildren;
+        // --- 2. Return Leg Pricing (if applicable) ---
+        $returnAdult = 0;
+        $returnChild = 0;
+        $returnInfant = 0;
+        $returnBase = 0;
 
-        // 3. Service Charges (Applied per segment per person - Adults & Children)
-        $travelersCount = $adults + $children;
-        $totalService = self::SERVICE_FEE_PER_PERSON * $travelersCount * $segmentsCount;
+        if ($return) {
+            $returnBase = $return->price * $multiplier;
+            $returnAdult = $returnBase + $fixedFees;
+            $returnChild = $returnAdult * 0.9;
+            $returnInfant = ($returnAdult * 0.1) + $fixedFees;
+        }
 
-        // 4. VAT Calculation (VAT = (Base Fare + Surcharges) * 10%)
-        $taxableAmount = $totalBaseFare + $totalService;
-        $totalVat = $taxableAmount * self::VAT_RATE;
+        // --- 3. Combined Totals per Person Type ---
+        $totalAdultPerPerson = $outboundAdult + $returnAdult;
+        $totalChildPerPerson = $outboundChild + $returnChild;
+        $totalInfantPerPerson = $outboundInfant + $returnInfant;
 
-        // 5. Infant Fees (Fixed per segment)
-        $totalInfantFee = self::INFANT_FIXED_FEE * $infants * $segmentsCount;
+        // --- 4. Final Aggregates ---
+        $totalAdultsFull = $totalAdultPerPerson * $adults;
+        $totalChildrenFull = $totalChildPerPerson * $children;
+        $totalInfantFull = $totalInfantPerPerson * $infants;
 
-        // 6. Final Total
-        $grandTotal = $totalBaseFare + $totalService + $totalVat + $totalInfantFee;
+        $grandTotal = $totalAdultsFull + $totalChildrenFull + $totalInfantFull;
 
         // 7. Return structured data for view/controller
         return [
-            'base_adult_single' => $basePerAdult,
-            'base_child_single' => $basePerChild,
-            'total_base_fare' => $totalBaseFare,
-            'total_service' => $totalService,
-            'total_vat' => $totalVat,
-            'total_infant' => $totalInfantFee,
+            'total_adults_full' => $totalAdultsFull,
+            'total_children_full' => $totalChildrenFull,
+            'total_infant_full' => $totalInfantFull,
             'grand_total' => $grandTotal,
-            // Per person totals
+
+            // Summary keys for easier rendering in Review/Checkout pages
+            'total_base' => (($outboundBase + $returnBase) * $adults) + 
+                            (($totalAdultPerPerson * 0.9 - $fixedFees) * $children) + 
+                            (($totalAdultPerPerson * 0.1) * $infants),
+            
+            'total_service' => self::SERVICE_FEE_PER_PERSON * ($adults + $children + $infants) * $segmentsCount,
+            
+            'total_tax_fees' => self::TAX_PER_PERSON * ($adults + $children + $infants) * $segmentsCount,
+
+            'total_adults_base' => ($outboundBase + $returnBase) * $adults,
+            'total_adults_service' => self::SERVICE_FEE_PER_PERSON * $adults * $segmentsCount,
+            'total_adults_vat' => self::TAX_PER_PERSON * $adults * $segmentsCount,
+
+            'total_children_base' => ($totalAdultPerPerson * 0.9 - $fixedFees) * $children, 
+            'total_children_service' => self::SERVICE_FEE_PER_PERSON * $children * $segmentsCount,
+            'total_children_vat' => self::TAX_PER_PERSON * $children * $segmentsCount,
+
+            'total_infants_base' => ($totalAdultPerPerson * 0.1) * $infants,
+            'total_infants_service' => self::SERVICE_FEE_PER_PERSON * $infants * $segmentsCount,
+            'total_infants_vat' => self::TAX_PER_PERSON * $infants * $segmentsCount,
+
             'segments' => $segmentsCount,
-            'service_unit' => self::SERVICE_FEE_PER_PERSON,
-            'vat_rate' => self::VAT_RATE
         ];
     }
 }

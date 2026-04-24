@@ -1,3 +1,46 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    /* Logo / Brand */
+    .nav-brand {
+        @apply font-bold text-xl text-gray-800;
+    }
+
+    /* Desktop Navigation Links */
+    .nav-link-desktop {
+        @apply inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none;
+    }
+    .nav-link-desktop-active {
+        @apply border-indigo-400 text-gray-900 focus:border-indigo-700;
+    }
+    .nav-link-desktop-inactive {
+        @apply border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:text-gray-700 focus:border-gray-300;
+    }
+
+    /* User Dropdown */
+    .nav-dropdown-trigger {
+        @apply inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150;
+    }
+    .nav-dropdown-content {
+        @apply absolute right-0 z-50 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none;
+    }
+    .nav-dropdown-link {
+        @apply block w-full text-left px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out;
+    }
+
+    /* Mobile Menu */
+    .nav-hamburger {
+        @apply inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out;
+    }
+    .nav-link-mobile {
+        @apply block w-full ps-3 pe-4 py-2 border-l-4 text-start text-base font-medium transition duration-150 ease-in-out focus:outline-none;
+    }
+    .nav-link-mobile-active {
+        @apply border-indigo-400 text-indigo-700 bg-indigo-50 focus:text-indigo-800 focus:bg-indigo-100 focus:border-indigo-700;
+    }
+    .nav-link-mobile-inactive {
+        @apply border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 focus:text-gray-800 focus:bg-gray-50 focus:border-gray-300;
+    }
+}

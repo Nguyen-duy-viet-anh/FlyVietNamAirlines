@@ -11,7 +11,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. TẠO TÀI KHOẢN ADMIN
+
         User::firstOrCreate(
             ['email' => 'admin@gmail.com'],
             [
@@ -33,10 +33,12 @@ class DatabaseSeeder extends Seeder
 
         // 3. TẠO SÂN BAY VÀ DANH LAM THẮNG CẢNH (LƯU DẠNG JSON)
         $this->command->info('Đang tạo Sân bay và Danh lam thắng cảnh...');
-        
+
         $destinationsData = [
             [
-                'code' => 'HAN', 'city' => 'Hà Nội', 'name' => 'Sân bay Quốc tế Nội Bài', 
+                'code' => 'HAN',
+                'city' => 'Hà Nội',
+                'name' => 'Sân bay Quốc tế Nội Bài',
                 'image' => 'https://images.unsplash.com/photo-1599708153386-62b212f7105a?w=600',
                 'description' => 'Thủ đô ngàn năm văn hiến cổ kính, nhộn nhịp 36 phố phường và nền ẩm thực đường phố nức tiếng.',
                 'landmarks' => [
@@ -45,7 +47,9 @@ class DatabaseSeeder extends Seeder
                 ]
             ],
             [
-                'code' => 'SGN', 'city' => 'TP. Hồ Chí Minh', 'name' => 'Sân bay Quốc tế Tân Sơn Nhất', 
+                'code' => 'SGN',
+                'city' => 'TP. Hồ Chí Minh',
+                'name' => 'Sân bay Quốc tế Tân Sơn Nhất',
                 'image' => 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=600',
                 'description' => 'Thành phố mang tên Bác năng động, sầm uất bậc nhất. Nơi giao thoa văn hóa, kiến trúc tráng lệ.',
                 'landmarks' => [
@@ -54,7 +58,9 @@ class DatabaseSeeder extends Seeder
                 ]
             ],
             [
-                'code' => 'DAD', 'city' => 'Đà Nẵng', 'name' => 'Sân bay Quốc tế Đà Nẵng', 
+                'code' => 'DAD',
+                'city' => 'Đà Nẵng',
+                'name' => 'Sân bay Quốc tế Đà Nẵng',
                 'image' => 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=600',
                 'description' => 'Thành phố đáng sống. Khám phá Cầu Vàng sương mù, Ngũ Hành Sơn và bờ sông Hàn thơ mộng.',
                 'landmarks' => [
@@ -63,7 +69,9 @@ class DatabaseSeeder extends Seeder
                 ]
             ],
             [
-                'code' => 'PQC', 'city' => 'Phú Quốc', 'name' => 'Sân bay Quốc tế Phú Quốc', 
+                'code' => 'PQC',
+                'city' => 'Phú Quốc',
+                'name' => 'Sân bay Quốc tế Phú Quốc',
                 'image' => 'https://images.unsplash.com/photo-1555921015-5532091f6026?w=600',
                 'description' => 'Đảo Ngọc vẫy gọi với bãi biển cát trắng mịn, nước trong xanh và các nghỉ dưỡng đẳng cấp.',
                 'landmarks' => [
@@ -72,7 +80,9 @@ class DatabaseSeeder extends Seeder
                 ]
             ],
             [
-                'code' => 'DLI', 'city' => 'Đà Lạt', 'name' => 'Sân bay Liên Khương', 
+                'code' => 'DLI',
+                'city' => 'Đà Lạt',
+                'name' => 'Sân bay Liên Khương',
                 'image' => 'https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?w=600',
                 'description' => 'Thành phố ngàn hoa chìm trong sương mù. Trải nghiệm cái lạnh se se và rừng thông mộng mơ.',
                 'landmarks' => [
@@ -81,31 +91,41 @@ class DatabaseSeeder extends Seeder
                 ]
             ],
             [
-                'code' => 'CXR', 'city' => 'Nha Trang', 'name' => 'Sân bay Quốc tế Cam Ranh', 
+                'code' => 'CXR',
+                'city' => 'Nha Trang',
+                'name' => 'Sân bay Quốc tế Cam Ranh',
                 'image' => 'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?w=600',
                 'description' => 'Hòn ngọc biển Đông, sỡ hữu những bãi tắm tuyệt đẹp, các hòn đảo hoang sơ và san hô rực rỡ.',
                 'landmarks' => []
             ],
             [
-                'code' => 'HPH', 'city' => 'Hải Phòng', 'name' => 'Sân bay Quốc tế Cát Bi', 
+                'code' => 'HPH',
+                'city' => 'Hải Phòng',
+                'name' => 'Sân bay Quốc tế Cát Bi',
                 'image' => 'https://images.unsplash.com/photo-1575408264798-b50b252663e6?w=600',
                 'description' => 'Thành phố hoa phượng đỏ. Cửa ngõ để khám phá Vịnh Hạ Long kỳ quan và đảo Cát Bà hùng vĩ.',
                 'landmarks' => []
             ],
             [
-                'code' => 'UIH', 'city' => 'Quy Nhơn', 'name' => 'Sân bay Phù Cát', 
+                'code' => 'UIH',
+                'city' => 'Quy Nhơn',
+                'name' => 'Sân bay Phù Cát',
                 'image' => 'https://images.unsplash.com/photo-1620956920197-068d813735b5?w=600',
                 'description' => 'Bức tranh thủy mặc với Kỳ Co trong vắt, Eo Gió lộng gió và những tháp Chàm cổ kính.',
                 'landmarks' => []
             ],
             [
-                'code' => 'VCA', 'city' => 'Cần Thơ', 'name' => 'Sân bay Quốc tế Cần Thơ', 
+                'code' => 'VCA',
+                'city' => 'Cần Thơ',
+                'name' => 'Sân bay Quốc tế Cần Thơ',
                 'image' => 'https://images.unsplash.com/photo-1614902150937-21a416bdfbce?w=600',
                 'description' => 'Thủ phủ miền Tây sông nước trù phú. Dạo chợ nổi Cái Răng và nghe đờn ca tài tử.',
                 'landmarks' => []
             ],
             [
-                'code' => 'VII', 'city' => 'Vinh', 'name' => 'Sân bay Quốc tế Vinh', 
+                'code' => 'VII',
+                'city' => 'Vinh',
+                'name' => 'Sân bay Quốc tế Vinh',
                 'image' => 'https://images.unsplash.com/photo-1629555295573-047f636cc68f?w=600',
                 'description' => 'Quê hương Bác Hồ. Điểm xuất phát lý tưởng để tắm biển Cửa Lò và thăm làng Sen yên bình.',
                 'landmarks' => []
@@ -114,7 +134,7 @@ class DatabaseSeeder extends Seeder
 
         // LƯU TRỰC TIẾP (Vì chúng ta đã có cột JSON 'landmarks' và ép kiểu array trong Model)
         foreach ($destinationsData as $data) {
-            Airport::create($data); 
+            Airport::create($data);
         }
 
         // 4. CHẠY FLIGHT SEEDER
@@ -122,7 +142,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             FlightSeeder::class,
         ]);
-        
+
         $this->command->info('Hoàn tất toàn bộ dữ liệu mẫu!');
     }
 }

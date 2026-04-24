@@ -6,47 +6,46 @@
     <table>
         <thead>
             <tr>
-                <th>Mã PNR</th>
-                <th>Khách hàng</th>
-                <th>Hành trình</th>
-                <th>Tổng tiền</th>
-                <th>Trạng thái</th>
-                <th>Thanh toán</th>
-                <th>Hành động</th>
+                <th style="width: 50px; text-align: left;">STT</th>
+                <th style="width: 15%; text-align: left;">Mã PNR</th>
+                <th style="width: 25%; text-align: left;">Khách hàng</th>
+                <th style="width: 20%; text-align: center;">Hành trình</th>
+                <th style="width: 18%; text-align: right; padding-right: 30px;">Tổng tiền</th>
+                <th style="width: 17%; text-align: right;">Trạng thái</th>
             </tr>
         </thead>
         <tbody>
             @foreach($bookings as $booking)
             <tr>
-                <td><strong>{{ $booking->booking_code }}</strong><br><small>{{ $booking->created_at->format('d/m/Y H:i') }}</small></td>
+                <td>{{ ($bookings->currentPage() - 1) * $bookings->perPage() + $loop->iteration }}</td>
+                <td>
+                    <a href="{{ route('admin.bookings.show', $booking->id) }}" style="text-decoration: none; color: inherit;">
+                        <strong>{{ $booking->booking_code }}</strong>
+                    </a>
+                    <br><small>{{ $booking->created_at->format('d/m/Y H:i') }}</small>
+                </td>
                 <td>{{ $booking->passenger_name }}<br><small>{{ $booking->passenger_phone }}</small></td>
-                <td>
-                    {{ $booking->outboundFlight->origin->code }} → {{ $booking->outboundFlight->destination->code }}
-                    @if($booking->flight_type == 'round_trip') <br><small>(Khứ hồi)</small> @endif
+                <td style="text-align: center;">
+                    <div style="font-weight: 500;">
+                        {{ $booking->outboundFlight->origin->code }} 
+                        <i class="fas fa-arrow-right" style="font-size: 10px; color: #999; margin: 0 5px;"></i> 
+                        {{ $booking->outboundFlight->destination->code }}
+                    </div>
+                    <small style="color: #888;">({{ $booking->flight_type == 'round_trip' ? 'Khứ hồi' : 'Một chiều' }})</small>
                 </td>
-                <td class="danger-text text-bold text-danger">{{ number_format($booking->total_amount, 0, ',', '.') }}đ</td>
-                <td>
-                    @if($booking->status == 'confirmed') <span class="badge badge-confirmed">Đã xác nhận</span>
-                    @elseif($booking->status == 'cancelled') <span class="badge badge-cancelled">Đã hủy</span>
-                    @else <span class="badge badge-pending">Chờ xử lý</span> @endif
+                <td style="text-align: right; padding-right: 30px;">
+                    <span style="font-size: 16px; font-weight: 700; color: #d84a1d;">
+                        {{ number_format($booking->total_amount, 0, ',', '.') }}đ
+                    </span>
                 </td>
-                <td>
-                    {{ $booking->outboundFlight->origin->code }} → {{ $booking->outboundFlight->destination->code }}
-                    @if($booking->flight_type == 'round_trip') <br><small>(Khứ hồi)</small> @endif
-                    
-                    <br>
-                    @if($booking->ticket_class == 'business')
-                        <span class="text-orange-bold text-small">Thương gia</span>
-                    @else
-                        <span class="text-gray-small text-small">Phổ thông</span>
+                <td style="text-align: right;">
+                    @if($booking->status == 'confirmed') 
+                        <span class="badge badge-confirmed" style="display: inline-block; min-width: 100px; text-align: center;">Đã xác nhận</span>
+                    @elseif($booking->status == 'cancelled') 
+                        <span class="badge badge-cancelled" style="display: inline-block; min-width: 100px; text-align: center;">Đã hủy</span>
+                    @else 
+                        <span class="badge badge-pending" style="display: inline-block; min-width: 100px; text-align: center;">Chờ xử lý</span>
                     @endif
-                </td>
-                <td>
-                    @if($booking->payment_status == 'paid') <span class="text-green">Đã thanh toán</span>
-                    @else <span class="text-danger">Chưa TT</span> @endif
-                </td>
-                <td>
-                    <a href="{{ route('admin.bookings.show', $booking->id) }}" class="btn btn-primary">Xem chi tiết</a>
                 </td>
             </tr>
             @endforeach
