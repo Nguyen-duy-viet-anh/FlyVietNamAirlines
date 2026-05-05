@@ -52,14 +52,14 @@
 
 @section('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const form = document.getElementById('bookingForm');
             const btnSubmit = document.getElementById('btnSubmit');
-            
+
             function checkForm() {
                 const requiredInputs = form.querySelectorAll('[required]');
                 let allFilled = true;
-                
+
                 requiredInputs.forEach(input => {
                     if (input.type === 'checkbox') {
                         if (!input.checked) allFilled = false;
@@ -69,7 +69,7 @@
                         if (input.value.trim() === '') allFilled = false;
                     }
                 });
-                
+
                 // Extra check for email confirmation
                 const email = form.querySelector('input[name="passenger_email"]');
                 const emailConfirm = form.querySelector('input[name="passenger_email_confirm"]');
@@ -91,7 +91,7 @@
 
             form.addEventListener('input', checkForm);
             form.addEventListener('change', checkForm);
-            
+
             // Initial check
             checkForm();
             setTimeout(checkForm, 500);

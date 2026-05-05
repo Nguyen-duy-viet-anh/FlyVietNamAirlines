@@ -33,6 +33,10 @@ class HomeController extends Controller
             ->map(function($flight, $key) {
                 // Pha trộn giữa One Way và Round Trip (ví dụ: lẻ là Round Trip, chẵn là One Way)
                 $flight->trip_type = ($key % 2 == 0) ? 'one_way' : 'round_trip';
+                
+                // Nếu là khứ hồi, giá hiển thị = giá 1 chiều * 2
+                $flight->display_price = ($flight->trip_type == 'round_trip') ? ($flight->price * 2) : $flight->price;
+                
                 return $flight;
             });
 

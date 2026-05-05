@@ -4,7 +4,7 @@
         <div class="selection-label">
             <i class="fas fa-check-circle"></i> Chiều đi
         </div>
-        
+
         @php
             // Reset EVERYTHING when re-selecting outbound
             $reselectOutboundParams = request()->except(['outbound_flight_id', 'return_flight_id', 'ticket_class']);
@@ -23,7 +23,8 @@
                     <div class="viz-line" style="margin: 8px 0;">
                         <i class="fas fa-plane"></i>
                     </div>
-                    <span class="viz-duration">{{ $outboundFlight->departure_time->diff($outboundFlight->arrival_time)->format('%hh %im') }}</span>
+                    <span
+                        class="viz-duration">{{ $outboundFlight->departure_time->diff($outboundFlight->arrival_time)->format('%hh %im') }}</span>
                     <span class="viz-stops">Bay thẳng</span>
                 </div>
 
@@ -52,11 +53,11 @@
                                     $outLogo = 'logo-vietnamAirlines.png';
                                 }
                             @endphp
-                            <img src="{{ asset('images/' . $outLogo) }}" 
-                                 alt="{{ $outboundFlight->airline->name }}">
+                            <img src="{{ asset('images/' . $outLogo) }}" alt="{{ $outboundFlight->airline->name }}">
                         </div>
                         <div>
-                            <div style="font-weight: 600; font-size: 14px; color: #333;">{{ $outboundFlight->airline->name }}</div>
+                            <div style="font-weight: 600; font-size: 14px; color: #333;">
+                                {{ $outboundFlight->airline->name }}</div>
                             <div style="font-size: 12px; color: #777;">{{ $outboundFlight->flight_number }}</div>
                         </div>
                     </div>
@@ -75,7 +76,7 @@
         <div class="selection-label">
             <i class="fas fa-check-circle"></i> Chiều về
         </div>
-        
+
         @php
             // Only reset return selection
             $reselectReturnParams = request()->except(['return_flight_id']);
@@ -95,7 +96,8 @@
                     <div class="viz-line" style="margin: 8px 0;">
                         <i class="fas fa-plane" style="transform: rotate(180deg);"></i>
                     </div>
-                    <span class="viz-duration">{{ $returnFlight->departure_time->diff($returnFlight->arrival_time)->format('%hh %im') }}</span>
+                    <span
+                        class="viz-duration">{{ $returnFlight->departure_time->diff($returnFlight->arrival_time)->format('%hh %im') }}</span>
                     <span class="viz-stops">Bay thẳng</span>
                 </div>
 
@@ -121,11 +123,11 @@
                                     $returnLogo = 'logo-vietnamAirlines.png';
                                 }
                             @endphp
-                            <img src="{{ asset('images/' . $returnLogo) }}" 
-                                 alt="{{ $returnFlight->airline->name }}">
+                            <img src="{{ asset('images/' . $returnLogo) }}" alt="{{ $returnFlight->airline->name }}">
                         </div>
                         <div>
-                            <div style="font-weight: 600; font-size: 14px; color: #333;">{{ $returnFlight->airline->name }}</div>
+                            <div style="font-weight: 600; font-size: 14px; color: #333;">{{ $returnFlight->airline->name }}
+                            </div>
                             <div style="font-size: 12px; color: #777;">{{ $returnFlight->flight_number }}</div>
                         </div>
                     </div>

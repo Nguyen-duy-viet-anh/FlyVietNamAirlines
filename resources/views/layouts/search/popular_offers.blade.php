@@ -41,7 +41,7 @@
                                 </div>
                                 <div class="offer-price">
                                     <span>From</span>
-                                    <span class="price-val">VND {{ number_format($route->price, 0, ',', '.') }}</span>
+                                    <span class="price-val">VND {{ number_format($route->display_price, 0, ',', '.') }}</span>
                                 </div>
                             </div>
                         </div>

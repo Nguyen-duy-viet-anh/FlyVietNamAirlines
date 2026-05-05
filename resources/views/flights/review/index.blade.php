@@ -13,8 +13,34 @@
     <div class="review-container">
         <div class="review-header">
             @if(isset($isLookup) && $isLookup)
-                <h1>Thiết lập trạng thái vé / Tra cứu</h1>
-                <div class="order-code">Mã đặt chỗ (PNR): <span style="color: #0056b3;">{{ request('booking_code') }}</span></div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h1>Chi tiết thông tin vé</h1>
+                        <div class="order-code">Mã đặt chỗ (PNR): <span style="color: #0056b3;">{{ $booking->booking_code }}</span></div>
+                    </div>
+                    <div class="booking-status-badge status-{{ $booking->status }}" style="padding: 10px 20px; border-radius: 8px; font-weight: bold; background: #e3f2fd; color: #1976d2;">
+                        @php
+                            $statusLabels = [
+                                'pending' => 'Chờ thanh toán',
+                                'confirmed' => 'Đã xác nhận',
+                                'completed' => 'Đã hoàn tất',
+                                'cancelled' => 'Đã hủy',
+                                'refunded' => 'Đã hoàn tiền'
+                            ];
+                            $statusColors = [
+                                'pending' => ['bg' => '#fff3e0', 'color' => '#f57c00'],
+                                'confirmed' => ['bg' => '#e8f5e9', 'color' => '#388e3c'],
+                                'completed' => ['bg' => '#e3f2fd', 'color' => '#1976d2'],
+                                'cancelled' => ['bg' => '#ffebee', 'color' => '#d32f2f'],
+                                'refunded' => ['bg' => '#f3e5f5', 'color' => '#7b1fa2']
+                            ];
+                            $style = $statusColors[$booking->status] ?? ['bg' => '#eee', 'color' => '#333'];
+                        @endphp
+                        <span style="background: {{ $style['bg'] }}; color: {{ $style['color'] }}; padding: 8px 15px; border-radius: 5px;">
+                            TRẠNG THÁI: {{ strtoupper($statusLabels[$booking->status] ?? $booking->status) }}
+                        </span>
+                    </div>
+                </div>
             @else
                 <h1>Kiểm tra thông tin đặt vé</h1>
                 <div class="order-code">Mã đặt hàng: <span style="color: #0056b3;">#PG-{{ strtoupper(Str::random(5)) }}</span></div>

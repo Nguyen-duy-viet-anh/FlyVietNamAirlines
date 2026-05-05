@@ -53,9 +53,8 @@
             <div class="dropdown-menu">
                 @auth
                     <a href="{{ route('my.bookings') }}" class="dropdown-item">Vé của tôi</a>
-                @else
-                    <a href="{{ route('booking.mybooking') }}" class="dropdown-item">Tra cứu vé</a>
                 @endauth
+                <a href="{{ route('booking.mybooking') }}" class="dropdown-item">Tra cứu vé</a>
                 <a href="{{ route('booking.mybooking') }}" class="dropdown-item">Hoàn tiền vé</a>
             </div>
         </div>
