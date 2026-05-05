@@ -3,7 +3,7 @@
 @section('content')
 <div class="container">
     <div style="text-align: center; margin-bottom: 40px;">
-        <h1 style="color: #2c3e50; font-size: 36px; margin-bottom: 10px;">🌍 Khám phá các Điểm đến tuyệt vời</h1>
+        <h1 style="color: #2c3e50; font-size: 36px; margin-bottom: 10px;">Khám phá các Điểm đến tuyệt vời</h1>
         <p style="color: #7f8c8d; font-size: 18px;">Những vùng đất mới đang chờ bạn khám phá. Đặt vé ngay hôm nay!</p>
     </div>
 
@@ -15,9 +15,7 @@
             <div style="height: 200px; overflow: hidden; position: relative;">
                 <img src="{{ $dest->image }}" alt="{{ $dest->city }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
                 
-                <div style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">
-                    ✈️ {{ $dest->code }}
-                </div>
+                    {{ $dest->code }}
             </div>
 
             <div style="padding: 20px;">
@@ -29,7 +27,7 @@
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
                 
                 <a href="{{ route('destinations.show', $dest->id) }}" class="btn btn-primary" style="display: block; text-align: center; border-radius: 20px; background-color: #3498db;">
-                    📖 Xem chi tiết
+                    Xem chi tiết
                 </a>
             </div>
         </div>

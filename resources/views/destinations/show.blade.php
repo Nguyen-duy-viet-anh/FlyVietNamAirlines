@@ -6,7 +6,7 @@
 
         <div style="position: absolute; bottom: 40px; left: 40px; color: white;">
             <span style="background: #ff9800; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; margin-bottom: 10px; display: inline-block;">
-                ✈️ Sân bay {{ $destination->code }}
+                Sân bay {{ $destination->code }}
             </span>
             <h1 style="font-size: 48px; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
                 Khám phá {{ $destination->city }}
@@ -20,7 +20,7 @@
     <div class="grid-2" style="display: grid; grid-template-columns: 1fr 350px; gap: 40px;">
         <div>
             <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 25px;">
-                📸 Các điểm đến không thể bỏ lỡ
+                Các điểm đến không thể bỏ lỡ
             </h2>
 
             @forelse($destination->landmarks ?? [] as $landmark)
@@ -43,12 +43,12 @@
 
                 <a href="/?destination_id={{ $destination->id }}" class="btn btn-primary"
                     style="display: block; width: 100%; font-size: 18px; padding: 15px; border-radius: 30px; box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3); text-decoration: none; color: white;">
-                    ✈️ TÌM VÉ ĐI {{ mb_strtoupper($destination->city) }} NGAY
+                    TÌM VÉ ĐI {{ mb_strtoupper($destination->city) }} NGAY
                 </a>
 
                 <a href="{{ route('destinations.index') }}"
                     style="display: inline-block; margin-top: 15px; color: #95a5a6; text-decoration: none;">
-                    ⬅️ Xem các điểm đến khác
+                    Xem các điểm đến khác
                 </a>
             </div>
         </div>

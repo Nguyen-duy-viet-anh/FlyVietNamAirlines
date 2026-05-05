@@ -6,6 +6,8 @@ use App\Models\Airport;
 use App\Models\Flight;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NewsletterSubscription;
 
 class HomeController extends Controller
 {
@@ -35,5 +37,27 @@ class HomeController extends Controller
             });
 
         return view('home', compact('airports', 'popularRoutes'));
+    }
+
+    public function subscribeNewsletter(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|unique:newsletters,email'
+        ], [
+            'email.unique' => 'Email này đã đăng ký trước đó rồi.'
+        ]);
+
+        try {
+            // Lưu vào database
+            \App\Models\Newsletter::create(['email' => $request->email]);
+
+            // Gửi email thông báo cho Admin
+            $adminEmail = config('mail.from.address', 'admin@example.com');
+            Mail::to($adminEmail)->send(new NewsletterSubscription($request->email));
+            
+            return back()->with('success_newsletter', 'Cảm ơn bạn đã đăng ký nhận bản tin!');
+        } catch (\Exception $e) {
+            return back()->with('error_newsletter', 'Có lỗi xảy ra, vui lòng thử lại sau.');
+        }
     }
 }

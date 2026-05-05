@@ -6,16 +6,23 @@
         <link rel="stylesheet" href="{{ asset('css/flight-search.css') }}">
     @endpush
 
-    @include('layouts.search.booking_stepper', ['currentStep' => 3])
+    @if(!isset($isLookup) || !$isLookup)
+        @include('layouts.search.booking_stepper', ['currentStep' => 3])
+    @endif
 
     <div class="review-container">
         <div class="review-header">
-            <h1>Kiểm tra thông tin đặt vé</h1>
-            <div class="order-code">Mã đặt hàng: <span style="color: #0056b3;">#PG-{{ strtoupper(Str::random(5)) }}</span>
-            </div>
-            <div class="order-note">Mã đặt hàng này chỉ dùng để tham khảo, KHÔNG dùng để làm thủ tục check-in hay lên máy
-                bay!</div>
+            @if(isset($isLookup) && $isLookup)
+                <h1>Thiết lập trạng thái vé / Tra cứu</h1>
+                <div class="order-code">Mã đặt chỗ (PNR): <span style="color: #0056b3;">{{ request('booking_code') }}</span></div>
+            @else
+                <h1>Kiểm tra thông tin đặt vé</h1>
+                <div class="order-code">Mã đặt hàng: <span style="color: #0056b3;">#PG-{{ strtoupper(Str::random(5)) }}</span></div>
+                <div class="order-note">Mã đặt hàng này chỉ dùng để tham khảo, KHÔNG dùng để làm thủ tục check-in hay lên máy bay!</div>
+            @endif
         </div>
+
+        {{-- Refund button removed from review page per request --}}
 
         @include('flights.search._summary_panel', [
             'outboundFlight' => $outboundFlight, 
@@ -28,9 +35,11 @@
 
         @include('flights.review._contact_card')
 
-        @include('flights.review._payment_card')
-
-        @include('flights.review._terms_card')
+        @if(!isset($isLookup) || !$isLookup)
+            @include('flights.review._payment_card')
+            
+            @include('flights.review._terms_card')
+        @endif
 
         <form action="{{ route('flights.payment') }}" method="POST" id="paymentForm">
             @csrf
@@ -50,7 +59,9 @@
             @endphp
 
             <div class="clearfix" style="margin-top: 30px; margin-bottom: 50px;">
-                <button type="submit" id="btnContinue" class="btn-continue-review" disabled>Tiếp tục</button>
+                @if(!isset($isLookup) || !$isLookup)
+                    <button type="submit" id="btnContinue" class="btn-continue-review" disabled>Tiếp tục</button>
+                @endif
             </div>
         </form>
     </div>
@@ -62,9 +73,11 @@
             const checkbox = document.getElementById('agreeCheckbox');
             const btn = document.getElementById('btnContinue');
 
-            checkbox.addEventListener('change', function () {
-                btn.disabled = !this.checked;
-            });
+            if (checkbox && btn) {
+                checkbox.addEventListener('change', function () {
+                    btn.disabled = !this.checked;
+                });
+            }
         });
 
         function toggleDropdownContent(id) {

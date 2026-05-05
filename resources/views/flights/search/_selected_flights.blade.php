@@ -39,9 +39,21 @@
                 <div class="airline-class-info">
                     <div class="airline-info">
                         <div class="airline-logo-box">
-                            <img src="{{ asset('images/' . (['vietjet-air' => 'Logo-VietjetAir.jpg', 'bamboo-airways' => 'logo-bamboo-airways.jpg', 'vietnam-airlines' => 'logo-vietnamAirlines.png'][Str::slug($outboundFlight->airline->name)] ?? Str::slug($outboundFlight->airline->name) . '.png')) }}" 
-                                 alt="{{ $outboundFlight->airline->name }}" 
-                                 onerror="this.onerror=null; this.src='https://via.placeholder.com/40x40?text=✈️';">
+                            @php
+                                $outSlug = Str::slug($outboundFlight->airline->name);
+                                $logoMap = [
+                                    'vietjet-air' => 'Logo-VietjetAir.jpg',
+                                    'bamboo-airways' => 'logo-bamboo-airways.jpg',
+                                    'vietnam-airlines' => 'logo-vietnamAirlines.png',
+                                    'vietravel-airlines' => 'Vietravel-Airlines.png',
+                                ];
+                                $outLogo = $logoMap[$outSlug] ?? ($outSlug . '.png');
+                                if (!file_exists(public_path('images/' . $outLogo))) {
+                                    $outLogo = 'logo-vietnamAirlines.png';
+                                }
+                            @endphp
+                            <img src="{{ asset('images/' . $outLogo) }}" 
+                                 alt="{{ $outboundFlight->airline->name }}">
                         </div>
                         <div>
                             <div style="font-weight: 600; font-size: 14px; color: #333;">{{ $outboundFlight->airline->name }}</div>
@@ -96,9 +108,21 @@
                 <div class="airline-class-info">
                     <div class="airline-info">
                         <div class="airline-logo-box">
-                            <img src="{{ asset('images/' . (['vietjet-air' => 'Logo-VietjetAir.jpg', 'bamboo-airways' => 'logo-bamboo-airways.jpg', 'vietnam-airlines' => 'logo-vietnamAirlines.png'][Str::slug($returnFlight->airline->name)] ?? Str::slug($returnFlight->airline->name) . '.png')) }}" 
-                                 alt="{{ $returnFlight->airline->name }}" 
-                                 onerror="this.onerror=null; this.src='https://via.placeholder.com/40x40?text=✈️';">
+                            @php
+                                $returnSlug = Str::slug($returnFlight->airline->name);
+                                $logoMap = [
+                                    'vietjet-air' => 'Logo-VietjetAir.jpg',
+                                    'bamboo-airways' => 'logo-bamboo-airways.jpg',
+                                    'vietnam-airlines' => 'logo-vietnamAirlines.png',
+                                    'vietravel-airlines' => 'Vietravel-Airlines.png',
+                                ];
+                                $returnLogo = $logoMap[$returnSlug] ?? ($returnSlug . '.png');
+                                if (!file_exists(public_path('images/' . $returnLogo))) {
+                                    $returnLogo = 'logo-vietnamAirlines.png';
+                                }
+                            @endphp
+                            <img src="{{ asset('images/' . $returnLogo) }}" 
+                                 alt="{{ $returnFlight->airline->name }}">
                         </div>
                         <div>
                             <div style="font-weight: 600; font-size: 14px; color: #333;">{{ $returnFlight->airline->name }}</div>

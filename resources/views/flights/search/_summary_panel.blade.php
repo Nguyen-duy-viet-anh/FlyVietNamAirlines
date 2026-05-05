@@ -2,7 +2,7 @@
     <div class="selection-summary-panel">
         <h3 class="summary-title">Lựa chọn của bạn</h3>
         
-        <div class="summary-grid">
+        <div class="summary-grid {{ request('flight_type') == 'one_way' ? 'grid-one-way' : '' }}">
             {{-- Departing Leg --}}
             <div class="summary-column">
                 <div class="summary-route">
@@ -25,64 +25,62 @@
                     $currentClass = $classMap[request('ticket_class', 'economy')] ?? request('ticket_class');
                 @endphp
                 <div class="summary-class-info">
-                    {{ $currentClass }} (Tiết kiệm)
+                    {{ $currentClass }}
                 </div>
                 <div class="summary-luggage-info">
-                    <i class="fas fa-suitcase"></i> Hành lý: 20 kg
+                    <i class="fas fa-suitcase"></i> Hành lý: {{ request('ticket_class') == 'business' ? '30 kg' : '20 kg' }}
                 </div>
             </div>
 
-            <div class="summary-divider"></div>
+            @if(request('flight_type') != 'one_way')
+                <div class="summary-divider"></div>
 
-            {{-- Returning Leg --}}
-            <div class="summary-column {{ !$returnFlight ? 'summary-placeholder' : '' }}">
-                @if($returnFlight)
-                    <div class="summary-route">
-                        <span>Chiều về</span>
-                        <span>{{ $returnFlight->departure_time->format('D, d M Y') }}</span>
-                    </div>
-                    <div class="summary-times">
-                        <div>
-                            <span class="summary-time">{{ $returnFlight->departure_time->format('H:i') }}</span>
-                            <span class="summary-city">{{ $returnFlight->origin->code }}</span>
+                {{-- Returning Leg --}}
+                <div class="summary-column {{ !$returnFlight ? 'summary-placeholder' : '' }}">
+                    @if($returnFlight)
+                        <div class="summary-route">
+                            <span>Chiều về</span>
+                            <span>{{ $returnFlight->departure_time->format('D, d M Y') }}</span>
                         </div>
-                        <div class="summary-arrow"><i class="fas fa-long-arrow-alt-right"></i></div>
-                        <div>
-                            <span class="summary-time">{{ $returnFlight->arrival_time->format('H:i') }}</span>
-                            <span class="summary-city">{{ $returnFlight->destination->code }}</span>
+                        <div class="summary-times">
+                            <div>
+                                <span class="summary-time">{{ $returnFlight->departure_time->format('H:i') }}</span>
+                                <span class="summary-city">{{ $returnFlight->origin->code }}</span>
+                            </div>
+                            <div class="summary-arrow"><i class="fas fa-long-arrow-alt-right"></i></div>
+                            <div>
+                                <span class="summary-time">{{ $returnFlight->arrival_time->format('H:i') }}</span>
+                                <span class="summary-city">{{ $returnFlight->destination->code }}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="summary-class-info">
-                        {{ $classMap[request('ticket_class', 'economy')] ?? request('ticket_class') }} (Tiết kiệm)
-                    </div>
-                    <div class="summary-luggage-info">
-                        <i class="fas fa-suitcase"></i> Hành lý: 20 kg
-                    </div>
-                @elseif($step == 'return' || request('flight_type') == 'round_trip')
-                    <div class="summary-route">
-                        <span>Chiều về</span>
-                        <span>{{ request('return_date') ? \Carbon\Carbon::parse(request('return_date'))->format('D, d M Y') : 'Chưa đặt' }}</span>
-                    </div>
-                    <div class="summary-times text-muted" style="opacity: 0.5;">
-                        <div>
-                            <span class="summary-time">--:--</span>
-                            <span class="summary-city">{{ $outboundFlight->destination->code }}</span>
+                        <div class="summary-class-info">
+                            {{ $classMap[request('ticket_class', 'economy')] ?? request('ticket_class') }}
                         </div>
-                        <div class="summary-arrow"><i class="fas fa-long-arrow-alt-right"></i></div>
-                        <div>
-                            <span class="summary-time">--:--</span>
-                            <span class="summary-city">{{ $outboundFlight->origin->code }}</span>
+                        <div class="summary-luggage-info">
+                            <i class="fas fa-suitcase"></i> Hành lý: {{ request('ticket_class') == 'business' ? '30 kg' : '20 kg' }}
                         </div>
-                    </div>
-                    <div class="summary-selecting-text">
-                        <i class="fas fa-plane-arrival"></i> Đang chọn chiều về...
-                    </div>
-                @else
-                    <div class="summary-empty-box">
-                        Không cần chiều về
-                    </div>
-                @endif
-            </div>
+                    @elseif($step == 'return' || request('flight_type') == 'round_trip')
+                        <div class="summary-route">
+                            <span>Chiều về</span>
+                            <span>{{ request('return_date') ? \Carbon\Carbon::parse(request('return_date'))->format('D, d M Y') : 'Chưa đặt' }}</span>
+                        </div>
+                        <div class="summary-times text-muted" style="opacity: 0.5;">
+                            <div>
+                                <span class="summary-time">--:--</span>
+                                <span class="summary-city">{{ $outboundFlight->destination->code }}</span>
+                            </div>
+                            <div class="summary-arrow"><i class="fas fa-long-arrow-alt-right"></i></div>
+                            <div>
+                                <span class="summary-time">--:--</span>
+                                <span class="summary-city">{{ $outboundFlight->origin->code }}</span>
+                            </div>
+                        </div>
+                        <div class="summary-selecting-text">
+                            <i class="fas fa-plane-arrival"></i> Đang chọn chiều về...
+                        </div>
+                    @endif
+                </div>
+            @endif
         </div>
 
         <div class="summary-footer">

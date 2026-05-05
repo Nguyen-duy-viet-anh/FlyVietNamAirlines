@@ -1,0 +1,150 @@
+/* Refund Request Page */
+.refund-wrapper {
+    padding: 60px 20px;
+    background: #f5f7fb;
+    min-height: 520px;
+}
+
+.refund-card {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 10px;
+    padding: 28px;
+    box-shadow: 0 6px 20px rgba(14, 30, 62, 0.08);
+}
+
+.refund-header h1 {
+    margin: 0 0 8px 0;
+    color: #003580;
+    font-size: 28px;
+}
+
+.refund-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 14px;
+    color: #4a5a72;
+}
+
+.refund-note {
+    margin: 10px 0 0 0;
+    color: #6b7a90;
+    font-size: 14px;
+}
+
+.refund-form {
+    margin-top: 18px;
+}
+
+.refund-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.refund-grid .full {
+    grid-column: 1 / -1;
+}
+
+.refund-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.refund-form label {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+.refund-form input,
+.refund-form select,
+.refund-form textarea {
+    padding: 12px 14px;
+    border: 1px solid #dfe3e8;
+    border-radius: 6px;
+    font-size: 15px;
+    color: #333;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #fff;
+}
+
+.refund-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.refund-form input:focus,
+.refund-form select:focus,
+.refund-form textarea:focus {
+    outline: none;
+    border-color: #003580;
+    box-shadow: 0 0 0 3px rgba(0, 53, 128, 0.08);
+}
+
+.refund-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-primary {
+    background: #f05a28;
+    color: #fff;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover {
+    background: #d84a1d;
+}
+
+.alert {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.alert-success {
+    background: #f0fff4;
+    border: 1px solid #9ae6b4;
+    color: #2f855a;
+}
+
+.alert-danger {
+    background: #fff5f5;
+    border: 1px solid #feb2b2;
+    color: #c53030;
+}
+
+.text-danger {
+    color: #c53030;
+    font-size: 13px;
+}
+
+@media (max-width: 768px) {
+    .refund-card {
+        padding: 20px;
+    }
+
+    .refund-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .refund-actions {
+        justify-content: stretch;
+    }
+
+    .btn-primary {
+        width: 100%;
+    }
+}

@@ -51,7 +51,20 @@
                     </div>
 
                     <div class="flight-detail-footer">
-                        <img src="{{ asset('images/' . (['vietjet-air' => 'Logo-VietjetAir.jpg', 'bamboo-airways' => 'logo-bamboo-airways.jpg', 'vietnam-airlines' => 'logo-vietnamAirlines.png'][Str::slug($flight->airline->name)] ?? Str::slug($flight->airline->name) . '.png')) }}" 
+                        @php
+                            $slug = Str::slug($flight->airline->name);
+                            $logoMap = [
+                                'vietjet-air' => 'Logo-VietjetAir.jpg',
+                                'bamboo-airways' => 'logo-bamboo-airways.jpg',
+                                'vietnam-airlines' => 'logo-vietnamAirlines.png',
+                                'vietravel-airlines' => 'Vietravel-Airlines.png',
+                            ];
+                            $logoFile = $logoMap[$slug] ?? ($slug . '.png');
+                            if (!file_exists(public_path('images/' . $logoFile))) {
+                                $logoFile = 'logo-vietnamAirlines.png';
+                            }
+                        @endphp
+                        <img src="{{ asset('images/' . $logoFile) }}" 
                              alt="{{ $flight->airline->name }}" 
                              class="airline-logo-xs">
                         <span>{{ $flight->airline->name }} {{ $flight->flight_number }}</span>

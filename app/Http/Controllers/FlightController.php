@@ -32,6 +32,22 @@ class FlightController extends Controller
         $returnFlightId = $request->return_flight_id;
         $flightType = $request->flight_type;
 
+        $sortBy = $request->get('sort_by', 'price_asc');
+        $sortAliases = [
+            'date' => 'date_asc',
+            'time' => 'time_asc',
+            'price' => 'price_asc',
+        ];
+        $sortBy = $sortAliases[$sortBy] ?? $sortBy;
+        $sortMap = [
+            'date_asc' => ['departure_time', 'asc'],
+            'time_asc' => ['departure_time', 'asc'],
+            'price_asc' => ['price', 'asc'],
+        ];
+        $sortConfig = $sortMap[$sortBy] ?? ['price', 'asc'];
+        $sortColumn = $sortConfig[0];
+        $sortDirection = $sortConfig[1];
+
         // Tự động nhận diện loại chuyến bay nếu thiếu flight_type
         if (!$flightType && $outboundFlightId) {
             $flightType = 'round_trip';
@@ -55,35 +71,38 @@ class FlightController extends Controller
                 ->where('origin_id', $request->origin_id)
                 ->where('destination_id', $request->destination_id)
                 ->whereDate('departure_time', $request->departure_date)
-                ->orderBy('price', 'asc')
+                // CHỈNH: Chỉ hiện các hãng có chuyến bay khứ hồi (Cùng hãng đi và về)
+                ->whereIn('airline_id', function ($query) use ($request) {
+                    $query->select('airline_id')
+                        ->from('flights')
+                        ->where('origin_id', $request->destination_id)
+                        ->where('destination_id', $request->origin_id)
+                        ->whereDate('departure_time', $request->return_date)
+                        ->whereNull('deleted_at'); // Đảm bảo không lấy flight đã xóa mềm
+                })
+                ->orderBy($sortColumn, $sortDirection)
                 ->get();
-            
+
             // KIỂM TRA XEM CÓ CHIỀU VỀ KHÔNG?
-            if ($flights->isNotEmpty()) {
-                $hasReturnFlights = Flight::where('origin_id', $request->destination_id)
-                    ->where('destination_id', $request->origin_id)
-                    ->whereDate('departure_time', $request->return_date)
-                    ->exists();
-                
-                if (!$hasReturnFlights) {
-                    $flights = collect(); // Không cho chọn chiều đi nếu không có chiều về
-                    $noReturnAvailable = true;
-                }
+            if ($flights->isEmpty()) {
+                $noReturnAvailable = true;
             }
-                
-            $step = 'outbound'; 
+
+            $step = 'outbound';
             $title = 'Chọn chuyến bay Chiều Đi';
         }
         // TRƯỜNG HỢP 2: KHỨ HỒI - BƯỚC 2 (Đã chọn chiều đi -> Giờ tìm chiều về)
         elseif ($flightType == 'round_trip' && $outboundFlightId) {
             $flights = Flight::with(['airline', 'origin', 'destination'])
-                ->where('origin_id', $request->destination_id) 
+                ->where('origin_id', $request->destination_id)
                 ->where('destination_id', $request->origin_id)
                 ->whereDate('departure_time', $request->return_date)
-                ->orderBy('price', 'asc')
+                // CHỈNH: Phải cùng hãng với chuyến đi đã chọn
+                ->where('airline_id', $outboundFlight->airline_id)
+                ->orderBy($sortColumn, $sortDirection)
                 ->get();
-                
-            $step = 'return'; 
+
+            $step = 'return';
             $title = 'Chọn chuyến bay Chiều Về';
         }
         // TRƯỜNG HỢP 3: MỘT CHIỀU
@@ -92,10 +111,10 @@ class FlightController extends Controller
                 ->where('origin_id', $request->origin_id)
                 ->where('destination_id', $request->destination_id)
                 ->whereDate('departure_time', $request->departure_date)
-                ->orderBy('price', 'asc')
+                ->orderBy($sortColumn, $sortDirection)
                 ->get();
-                
-            $step = 'one_way'; 
+
+            $step = 'one_way';
             $title = 'Chọn chuyến bay';
         }
 

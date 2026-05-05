@@ -6,12 +6,23 @@ use Illuminate\Http\Request;
 use App\Models\AppBooking;
 use App\Models\AppBookingTransaction;
 use App\Models\Flight;
-// use App\Jobs\SendBookingConfirmationEmail; // Import Job gửi mail ở Step 7
+use App\Jobs\SendBookingConfirmationEmail;
+use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
 {
+    /**
+     * PaymentController
+     * Xử lý callback VNPay:
+     * - `vnpayReturn`: redirect user sau thanh toán (GET)
+     * - `vnpayIpn`: xử lý IPN (server-to-server)
+     * - Các hàm phụ trợ: validateSignature, confirmSuccessfulPayment, markFailedPayment
+     * Lưu ý: so sánh chữ ký phải dùng hash_equals để chống timing attack (đã cập nhật).
+     */
     public function vnpayReturn(Request $request)
     {
+        // Handler khi VNPay redirect người dùng về (thường dùng để show result page)
+        // Kiểm tra chữ ký, so sánh số tiền, cập nhật trạng thái nếu cần.
         $vnp_ResponseCode = $request->input('vnp_ResponseCode');
         $transactionCode = $request->input('vnp_TxnRef');
         $vnp_Amount = $request->input('vnp_Amount'); // Số tiền từ VNPAY (đã nhân 100)
@@ -29,8 +40,6 @@ class PaymentController extends Controller
         $paidAmount = $vnp_Amount / 100;
         $isAmountMatch = ($paidAmount == $expectedAmount);
 
-        $isAmountMatch = ($paidAmount == $expectedAmount);
-
         if (!$transaction || !$isSignatureValid || !$isAmountMatch) {
             $errorMsg = !$isSignatureValid ? 'Chữ ký không hợp lệ!' : (!$isAmountMatch ? 'Số tiền không khớp!' : 'Không tìm thấy giao dịch!');
             return redirect('/')->withErrors(['error' => 'Xác thực thanh toán thất bại: ' . $errorMsg]);
@@ -39,28 +48,17 @@ class PaymentController extends Controller
         $bookingCode = $booking->booking_code ?? 'LỖI_MẤT_MÃ_VÉ';
 
         if ($vnp_ResponseCode == '00') {
-            // ... (Phần xử trạng thái giữ nguyên)
-            if ($transaction->status == 'pending') {
-                $transaction->update(['status' => 'success']);
-                $booking->update(['status' => 'confirmed', 'payment_status' => 'paid']);
-
-                $totalPassengers = $booking->adult_count + $booking->child_count;
-                $columnToDecrement = $booking->ticket_class == 'business' ? 'business_available' : 'economy_available';
-
-                $outboundFlight = Flight::find($booking->outbound_flight_id);
-                if ($outboundFlight) { $outboundFlight->decrement($columnToDecrement, $totalPassengers); }
-
-                if ($booking->return_flight_id) {
-                    $returnFlight = Flight::find($booking->return_flight_id);
-                    if ($returnFlight) { $returnFlight->decrement($columnToDecrement, $totalPassengers); }
-                }
-            }
+            $processed = $this->confirmSuccessfulPayment($transaction, $booking, $request->all());
 
             return view('flights.success', [
                 'booking' => $booking,
-                'message' => 'Thanh toán thành công! Mã đặt vé của bạn là: ' . $bookingCode
+                'message' => $processed
+                    ? 'Thanh toán thành công! Mã đặt vé của bạn là: ' . $bookingCode
+                    : 'Đơn hàng đã được xác nhận trước đó. Mã đặt vé của bạn là: ' . $bookingCode
             ]);
         } else {
+            $this->markFailedPayment($transaction, $booking, $request->all());
+
             return view('flights.success', [
                 'booking' => $booking,
                 'message' => 'Thanh toán thất bại hoặc đã bị hủy. Vui lòng thử lại!'
@@ -70,6 +68,8 @@ class PaymentController extends Controller
 
     public function vnpayIpn(Request $request)
     {
+        // Handler IPN (Instant Payment Notification) – VNPay gửi POST tới endpoint này để notify.
+        // Xử lý tương tự vnpayReturn nhưng trả JSON cho VNPay (RspCode/Message).
         $vnp_ResponseCode = $request->input('vnp_ResponseCode');
         $transactionCode = $request->input('vnp_TxnRef');
         $vnp_Amount = $request->input('vnp_Amount');
@@ -83,31 +83,21 @@ class PaymentController extends Controller
         $paidAmount = $vnp_Amount / 100;
         $isAmountMatch = ($paidAmount == $expectedAmount);
 
-        $isAmountMatch = ($paidAmount == $expectedAmount);
-
         if ($transaction && $isSignatureValid && $isAmountMatch) {
-            if ($transaction->status == 'pending') {
-                if ($vnp_ResponseCode == '00') {
-                    $transaction->update(['status' => 'success', 'payment_response' => $request->all()]);
-                    $booking->update(['status' => 'confirmed', 'payment_status' => 'paid']);
+            if ($vnp_ResponseCode == '00') {
+                $processed = $this->confirmSuccessfulPayment($transaction, $booking, $request->all());
 
-                    $totalPassengers = $booking->adult_count + $booking->child_count;
-                    $outboundFlight = Flight::find($booking->outbound_flight_id);
-                    if ($outboundFlight) { $outboundFlight->decrement('available_seats', $totalPassengers); }
-
-                    if ($booking->return_flight_id) {
-                        $returnFlight = Flight::find($booking->return_flight_id);
-                        if ($returnFlight) { $returnFlight->decrement('available_seats', $totalPassengers); }
-                    }
-
-                    return response()->json(['RspCode' => '00', 'Message' => 'Confirm Success']);
-                } else {
-                    $transaction->update(['status' => 'failed', 'payment_response' => $request->all()]);
-                    $booking->update(['status' => 'cancelled']);
-                    return response()->json(['RspCode' => '00', 'Message' => 'Confirm Success']);
-                }
+                return response()->json([
+                    'RspCode' => $processed ? '00' : '02',
+                    'Message' => $processed ? 'Confirm Success' : 'Order already confirmed'
+                ]);
             }
-            return response()->json(['RspCode' => '02', 'Message' => 'Order already confirmed']);
+
+            $processed = $this->markFailedPayment($transaction, $booking, $request->all());
+            return response()->json([
+                'RspCode' => $processed ? '00' : '02',
+                'Message' => $processed ? 'Confirm Success' : 'Order already confirmed'
+            ]);
         }
 
         $failMsg = !$isSignatureValid ? 'Invalid signature' : (!$isAmountMatch ? 'Amount mismatch' : 'Order not found');
@@ -133,6 +123,87 @@ class PaymentController extends Controller
         }
 
         $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
-        return $secureHash === $vnp_SecureHash;
+        // Dùng hash_equals để tránh timing attack khi so sánh HMAC
+        return hash_equals($secureHash, $vnp_SecureHash);
+    }
+
+    private function confirmSuccessfulPayment(AppBookingTransaction $transaction, AppBooking $booking, array $paymentResponse): bool
+    {
+        // Xác nhận thanh toán thành công trong DB: lock hàng, cập nhật transaction và booking,
+        // và dispatch email confirmation job. Trả về true nếu cập nhật thành công.
+        return DB::transaction(function () use ($transaction, $booking, $paymentResponse) {
+            $lockedTransaction = AppBookingTransaction::whereKey($transaction->id)->lockForUpdate()->first();
+            $lockedBooking = AppBooking::whereKey($booking->id)->lockForUpdate()->first();
+
+            if (!$lockedTransaction || !$lockedBooking || $lockedTransaction->status !== 'pending') {
+                return false;
+            }
+
+            $lockedTransaction->update([
+                'status' => 'success',
+                'payment_response' => $paymentResponse,
+            ]);
+
+            $lockedBooking->update([
+                'status' => 'confirmed',
+                'payment_status' => 'paid',
+            ]);
+
+            SendBookingConfirmationEmail::dispatch($lockedBooking);
+
+            return true;
+        });
+    }
+
+    private function markFailedPayment(AppBookingTransaction $transaction, AppBooking $booking, array $paymentResponse): bool
+    {
+        // Ghi trạng thái thất bại, release seats nếu cần và cập nhật booking cancelled.
+        return DB::transaction(function () use ($transaction, $booking, $paymentResponse) {
+            $lockedTransaction = AppBookingTransaction::whereKey($transaction->id)->lockForUpdate()->first();
+            $lockedBooking = AppBooking::whereKey($booking->id)->lockForUpdate()->first();
+
+            if (!$lockedTransaction || !$lockedBooking || $lockedTransaction->status !== 'pending') {
+                return false;
+            }
+
+            $lockedTransaction->update([
+                'status' => 'failed',
+                'payment_response' => $paymentResponse,
+            ]);
+
+            $this->releaseReservedSeats($lockedBooking);
+
+            $lockedBooking->update([
+                'status' => 'cancelled',
+                'seats_reserved' => false,
+            ]);
+
+            return true;
+        });
+    }
+
+    private function releaseReservedSeats(AppBooking $booking): void
+    {
+        if (!(bool) ($booking->seats_reserved ?? false)) {
+            return;
         }
+
+        $seatCount = $this->getReservedSeatCount($booking);
+        $ticketClass = $booking->ticket_class ?? 'economy';
+
+        if ($seatCount < 1) {
+            return;
+        }
+
+        Flight::releaseSeats((int) $booking->outbound_flight_id, $seatCount, $ticketClass);
+
+        if ($booking->return_flight_id) {
+            Flight::releaseSeats((int) $booking->return_flight_id, $seatCount, $ticketClass);
+        }
+    }
+
+    private function getReservedSeatCount(AppBooking $booking): int
+    {
+        return max(0, (int) $booking->adult_count + (int) $booking->child_count);
+    }
 }

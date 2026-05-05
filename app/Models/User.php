@@ -9,6 +9,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
+    /**
+     * User model
+     * Người dùng hệ thống: có thể là 'admin' hoặc 'customer'.
+     * Lưu ý: thuộc tính `password` được cast 'hashed' (Laravel tự mã hóa khi set).
+     */
     use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
@@ -19,13 +24,10 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
 
     public function bookings()
     {

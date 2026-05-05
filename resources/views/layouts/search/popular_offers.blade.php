@@ -16,12 +16,17 @@
                 <div class="carousel-track">
                     @foreach($popularRoutes as $route)
                         @php
-                            $cityLower = strtolower(Str::slug($route->destination->city));
-                            $imagePath = asset('images/destinations/' . $cityLower . '.png');
-                            // Fallback if image doesn't exist
-                            if ($cityLower == 'ha-noi') $imagePath = asset('images/destinations/hanoi.png');
-                            if ($cityLower == 'ho-chi-minh') $imagePath = asset('images/destinations/saigon.png');
-                            if ($cityLower == 'da-nang') $imagePath = asset('images/destinations/danang.png');
+                            // Ưu tiên ảnh upload từ Admin (Storage)
+                            if (!empty($route->destination->image)) {
+                                $imagePath = asset($route->destination->image);
+                            } else {
+                                $cityLower = strtolower(Str::slug($route->destination->city));
+                                $imagePath = asset('images/destinations/' . $cityLower . '.png');
+                                // Fallback
+                                if ($cityLower == 'ha-noi') $imagePath = asset('images/destinations/hanoi.png');
+                                if ($cityLower == 'ho-chi-minh') $imagePath = asset('images/destinations/saigon.png');
+                                if ($cityLower == 'da-nang') $imagePath = asset('images/destinations/danang.png');
+                            }
                         @endphp
                         <div class="offer-card" 
                              data-origin-id="{{ $route->origin_id }}" 

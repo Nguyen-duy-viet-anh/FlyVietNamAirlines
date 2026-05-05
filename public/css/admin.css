@@ -198,6 +198,19 @@ table th {
 .badge-cancelled { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 .badge-pending { background: #eee; color: #666; border: 1px solid #ccc; }
 
+/* Alerts */
+.alert-success {
+    background-color: #f0fff4;
+    border: 1px solid #9ae6b4;
+    color: #2f855a;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 /* Forms */
 .admin-card-600 { max-width: 600px; margin: 0 auto; }
 .admin-title { color: #2c3e50; margin-top: 0; margin-bottom: 20px; }
@@ -270,6 +283,9 @@ table th {
 .status-confirmed { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
 .status-cancelled { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 .status-completed { background: #cce5ff; color: #004085; border: 1px solid #b8daff; }
+.status-requested { background: #fff4e5; color: #8a4b08; border: 1px solid #ffd8a8; }
+.status-processing { background: #e7f5ff; color: #1c7ed6; border: 1px solid #a5d8ff; }
+.status-failed { background: #fde2e2; color: #b91c1c; border: 1px solid #fecaca; }
 
 .booking-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
 @media (max-width: 992px) { .booking-grid { grid-template-columns: 1fr; } }
@@ -426,6 +442,52 @@ table th {
 }
 .quick-welcome h3 { margin-top: 0; font-size: 18px; }
 .quick-welcome p { margin-bottom: 0; opacity: 0.8; font-size: 14px; line-height: 1.5; }
+
+/* Admin Pagination */
+.admin-pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    width: 100%;
+    text-align: center;
+}
+.pagination-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+}
+.pagination-item a,
+.pagination-item span {
+    display: inline-block;
+    min-width: 32px;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    color: #2c3e50;
+    text-decoration: none;
+    font-weight: 600;
+    text-align: center;
+}
+.pagination-item {
+    display: inline-flex;
+}
+.pagination-item a:hover {
+    background: #f0f4f8;
+}
+.pagination-item.active span {
+    background: #003580;
+    border-color: #003580;
+    color: #fff;
+}
+.pagination-ellipsis {
+    color: #888;
+    padding: 6px 4px;
+    font-weight: 600;
+}
 
 
 

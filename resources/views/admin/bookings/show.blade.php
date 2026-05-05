@@ -35,8 +35,10 @@
                             <div class="itinerary-row">
                                 <!-- Departure -->
                                 <div class="node left">
-                                    <span
-                                        class="node-time">{{ $booking->outboundFlight->departure_time->format('H:i') }}</span>
+                                    <span class="node-time">
+                                        {{ $booking->outboundFlight->departure_time->format('H:i') }}
+                                        <small style="display: block; font-size: 11px; color: #666; margin-top: 4px;">{{ $booking->outboundFlight->departure_time->format('d/m/Y') }}</small>
+                                    </span>
                                     <span class="node-code">{{ $booking->outboundFlight->origin->code }}</span>
                                     <span class="node-city">{{ $booking->outboundFlight->origin->city }}</span>
                                 </div>
@@ -62,8 +64,10 @@
 
                                 <!-- Arrival -->
                                 <div class="node right">
-                                    <span
-                                        class="node-time">{{ $booking->outboundFlight->arrival_time->format('H:i') }}</span>
+                                    <span class="node-time">
+                                        {{ $booking->outboundFlight->arrival_time->format('H:i') }}
+                                        <small style="display: block; font-size: 11px; color: #666; margin-top: 4px;">{{ $booking->outboundFlight->arrival_time->format('d/m/Y') }}</small>
+                                    </span>
                                     <span class="node-code">{{ $booking->outboundFlight->destination->code }}</span>
                                     <span class="node-city">{{ $booking->outboundFlight->destination->city }}</span>
                                 </div>
@@ -78,8 +82,10 @@
                                 <div class="itinerary-row">
                                     <!-- Departure -->
                                     <div class="node left">
-                                        <span
-                                            class="node-time">{{ $booking->returnFlight->departure_time->format('H:i') }}</span>
+                                        <span class="node-time">
+                                            {{ $booking->returnFlight->departure_time->format('H:i') }}
+                                            <small style="display: block; font-size: 11px; color: #666; margin-top: 4px;">{{ $booking->returnFlight->departure_time->format('d/m/Y') }}</small>
+                                        </span>
                                         <span class="node-code">{{ $booking->returnFlight->origin->code }}</span>
                                         <span class="node-city">{{ $booking->returnFlight->origin->city }}</span>
                                     </div>
@@ -105,7 +111,10 @@
 
                                     <!-- Arrival -->
                                     <div class="node right">
-                                        <span class="node-time">{{ $booking->returnFlight->arrival_time->format('H:i') }}</span>
+                                        <span class="node-time">
+                                            {{ $booking->returnFlight->arrival_time->format('H:i') }}
+                                            <small style="display: block; font-size: 11px; color: #666; margin-top: 4px;">{{ $booking->returnFlight->arrival_time->format('d/m/Y') }}</small>
+                                        </span>
                                         <span class="node-code">{{ $booking->returnFlight->destination->code }}</span>
                                         <span class="node-city">{{ $booking->returnFlight->destination->city }}</span>
                                     </div>

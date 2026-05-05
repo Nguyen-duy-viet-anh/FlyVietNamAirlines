@@ -1,7 +1,11 @@
 <?php
 
 namespace App\Helpers;
-
+/**
+ * FlightPriceHelper
+ * Giúp tính toán bảng bóc tách giá vé cho từng loại hành khách và loại vé.
+ * Trả về mảng chứa các tổng và breakdown để hiển thị trên trang review/checkout.
+ */
 class FlightPriceHelper
 {
     const TAX_PER_PERSON = 120000;      // Thuế & Phí an ninh sân bay

@@ -38,6 +38,9 @@
     <div class="container">
         @yield('content')
     </div>
+
+    @include('components.footer')
+
     <script src="{{ asset('js/flightHelper.js') }}"></script>
     <script src="{{ asset('js/box_date.js') }}"></script>
     @yield('scripts')

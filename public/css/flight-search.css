@@ -110,6 +110,9 @@
     gap: 20px;
     align-items: flex-start;
 }
+.summary-grid.grid-one-way {
+    grid-template-columns: 1fr;
+}
 .summary-column {
     background: #fff;
     padding: 15px;
