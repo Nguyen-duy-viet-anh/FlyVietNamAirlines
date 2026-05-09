@@ -22,13 +22,13 @@
                 </div>
                 @php
                     $classMap = ['economy' => 'Phổ thông', 'business' => 'Thương gia'];
-                    $currentClass = $classMap[request('ticket_class', 'economy')] ?? request('ticket_class');
+                    $outboundClassVal = request('outbound_class', request('ticket_class', 'economy'));
                 @endphp
                 <div class="summary-class-info">
-                    {{ $currentClass }}
+                    {{ $classMap[$outboundClassVal] ?? $outboundClassVal }}
                 </div>
                 <div class="summary-luggage-info">
-                    <i class="fas fa-suitcase"></i> Hành lý: {{ request('ticket_class') == 'business' ? '30 kg' : '20 kg' }}
+                    <i class="fas fa-suitcase"></i> Hành lý: {{ $outboundClassVal == 'business' ? '30 kg' : '20 kg' }}
                 </div>
             </div>
 
@@ -53,11 +53,12 @@
                                 <span class="summary-city">{{ $returnFlight->destination->code }}</span>
                             </div>
                         </div>
+                        @php $returnClassVal = request('return_class', request('ticket_class', 'economy')); @endphp
                         <div class="summary-class-info">
-                            {{ $classMap[request('ticket_class', 'economy')] ?? request('ticket_class') }}
+                            {{ $classMap[$returnClassVal] ?? $returnClassVal }}
                         </div>
                         <div class="summary-luggage-info">
-                            <i class="fas fa-suitcase"></i> Hành lý: {{ request('ticket_class') == 'business' ? '30 kg' : '20 kg' }}
+                            <i class="fas fa-suitcase"></i> Hành lý: {{ $returnClassVal == 'business' ? '30 kg' : '20 kg' }}
                         </div>
                     @elseif($step == 'return' || request('flight_type') == 'round_trip')
                         <div class="summary-route">
@@ -93,7 +94,8 @@
                 {{-- Price Breakdown Dropdown --}}
                 <div class="price-breakdown-wrapper">
                     @php
-                        $isBusiness = request('ticket_class') == 'business';
+                        $outboundClass = request('outbound_class', request('ticket_class', 'economy'));
+                        $returnClass = request('return_class', request('ticket_class', 'economy'));
                         $adultCount = (int)request('adult_count', 1);
                         $childCount = (int)request('child_count', 0);
                         $infantCount = (int)request('infant_count', 0);
@@ -104,7 +106,8 @@
                             $adultCount, 
                             $childCount, 
                             $infantCount, 
-                            $isBusiness ? 'business' : 'economy'
+                            $outboundClass,
+                            $returnClass
                         );
 
                         $grandTotal = $price['grand_total'];
@@ -135,7 +138,7 @@
                             <span>VND {{ number_format($price['total_adults_service'], 0, ',', '.') }}</span>
                         </div>
                         <div class="price-row price-row-detail-compact mb-5">
-                            <span>Thuế VAT</span>
+                            <span>Thuế VAT (10%)</span>
                             <span>VND {{ number_format($price['total_adults_vat'], 0, ',', '.') }}</span>
                         </div>
 
@@ -153,7 +156,7 @@
                             <span>VND {{ number_format($price['total_children_service'], 0, ',', '.') }}</span>
                         </div>
                         <div class="price-row price-row-detail-compact mb-5">
-                            <span>Thuế VAT</span>
+                            <span>Thuế VAT (10%)</span>
                             <span>VND {{ number_format($price['total_children_vat'], 0, ',', '.') }}</span>
                         </div>
                         @endif
@@ -172,7 +175,7 @@
                             <span>VND {{ number_format($price['total_infants_service'], 0, ',', '.') }}</span>
                         </div>
                         <div class="price-row price-row-detail-compact mb-5">
-                            <span>Thuế VAT</span>
+                            <span>Thuế VAT (10%)</span>
                             <span>VND {{ number_format($price['total_infants_vat'], 0, ',', '.') }}</span>
                         </div>
                         @endif

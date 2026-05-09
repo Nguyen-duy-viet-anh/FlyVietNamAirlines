@@ -33,7 +33,8 @@ class BookingController extends Controller
         $adultCount = (int) $request->adult_count ?? 1;
         $childCount = (int) $request->child_count ?? 0;
         $infantCount = (int) $request->infant_count ?? 0;
-        $ticketClass = $request->ticket_class ?? 'economy';
+        $outboundClass = $request->outbound_class ?? $request->ticket_class ?? 'economy';
+        $returnClass = $request->return_class ?? $request->ticket_class ?? 'economy';
 
         // 1. USE UNIFIED HELPER
         $priceBreakdown = \App\Helpers\FlightPriceHelper::calculate(
@@ -42,7 +43,8 @@ class BookingController extends Controller
             $adultCount,
             $childCount,
             $infantCount,
-            $ticketClass
+            $outboundClass,
+            $returnClass
         );
 
         $totalAmount = $priceBreakdown['grand_total'];
@@ -130,6 +132,8 @@ class BookingController extends Controller
                     'user_id' => Auth::check() ? Auth::id() : null,
                     'flight_type' => $request->flight_type,
                     'ticket_class' => $ticketClass,
+                    'outbound_class' => $request->outbound_class ?? $ticketClass,
+                    'return_class' => $request->return_class ?? $ticketClass,
                     'outbound_flight_id' => $request->outbound_flight_id,
                     'return_flight_id' => $request->return_flight_id,
                     'adult_count' => $request->adult_count,
@@ -318,7 +322,8 @@ class BookingController extends Controller
         $adultCount = (int) ($request->adult_count ?? 1);
         $childCount = (int) ($request->child_count ?? 0);
         $infantCount = (int) ($request->infant_count ?? 0);
-        $ticketClass = $request->ticket_class ?? 'economy';
+        $outboundClass = $request->outbound_class ?? $request->ticket_class ?? 'economy';
+        $returnClass = $request->return_class ?? $request->ticket_class ?? 'economy';
 
         $priceBreakdown = \App\Helpers\FlightPriceHelper::calculate(
             $outboundFlight,
@@ -326,7 +331,8 @@ class BookingController extends Controller
             $adultCount,
             $childCount,
             $infantCount,
-            $ticketClass
+            $outboundClass,
+            $returnClass
         );
 
         // 0. Process name for display in Review page
@@ -455,7 +461,8 @@ class BookingController extends Controller
             $booking->adult_count,
             $booking->child_count,
             $booking->infant_count,
-            $booking->ticket_class
+            $booking->outbound_class ?? $booking->ticket_class,
+            $booking->return_class ?? $booking->ticket_class
         );
 
         $outboundFlight = $booking->outboundFlight;
@@ -468,6 +475,8 @@ class BookingController extends Controller
             'child_count' => $booking->child_count,
             'infant_count' => $booking->infant_count,
             'ticket_class' => $booking->ticket_class,
+            'outbound_class' => $booking->outbound_class ?? $booking->ticket_class,
+            'return_class' => $booking->return_class ?? $booking->ticket_class,
             'flight_type' => $booking->flight_type,
             'total_amount' => $booking->total_amount,
             'booking_code' => $booking->booking_code

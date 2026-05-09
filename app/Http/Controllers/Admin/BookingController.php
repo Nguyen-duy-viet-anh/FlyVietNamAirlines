@@ -57,7 +57,22 @@ class BookingController extends Controller
             'transaction'
         ])->findOrFail($id);
 
-        return view('admin.bookings.show', compact('booking'));
+        // Tính lại bảng bóc tách giá chính xác từ helper
+        // Booking cũ chưa có outbound_class/return_class → dùng ticket_class cho cả 2 chiều
+        $outClass = $booking->outbound_class ?? $booking->ticket_class ?? 'economy';
+        $retClass = $booking->return_class ?? $booking->ticket_class ?? 'economy';
+        
+        $priceBreakdown = \App\Helpers\FlightPriceHelper::calculate(
+            $booking->outboundFlight,
+            $booking->returnFlight,
+            $booking->adult_count,
+            $booking->child_count ?? 0,
+            $booking->infant_count ?? 0,
+            $outClass,
+            $retClass
+        );
+
+        return view('admin.bookings.show', compact('booking', 'priceBreakdown'));
     }
 
     // 3. Cập nhật trạng thái đơn (Phòng trường hợp khách gọi điện xin hủy vé)

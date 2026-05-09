@@ -228,25 +228,25 @@
                         <div class="price-details">
                             <!-- Fare breakdown -->
                             <!-- Adult Breakdown -->
-                            <details style="margin-bottom: 10px; cursor: pointer;">
+                            <details style="margin-bottom: 10px; cursor: pointer;" open>
                                 <summary class="d-flex flex-between align-center" style="list-style: none; outline: none;">
                                     <span style="font-weight: 500;">Người lớn (x{{ $booking->adult_count }})</span>
                                     <span
-                                        class="text-bold">{{ number_format($booking->total_amount * 0.7, 0, ',', '.') }}đ</span>
+                                        class="text-bold">{{ number_format($priceBreakdown['total_adults_full'], 0, ',', '.') }}đ</span>
                                 </summary>
                                 <div
                                     style="padding: 10px 0 5px 15px; font-size: 13px; color: #666; border-left: 2px solid #eee; margin: 5px 0 10px 5px;">
                                     <div class="d-flex flex-between mb-5">
                                         <span>Giá vé cơ bản</span>
-                                        <span>{{ number_format($booking->total_amount * 0.5, 0, ',', '.') }}đ</span>
+                                        <span>{{ number_format($priceBreakdown['total_adults_base'], 0, ',', '.') }}đ</span>
                                     </div>
                                     <div class="d-flex flex-between mb-5">
-                                        <span>Thuế sân bay</span>
-                                        <span>{{ number_format($booking->total_amount * 0.15, 0, ',', '.') }}đ</span>
+                                        <span>Thuế VAT (10%)</span>
+                                        <span>{{ number_format($priceBreakdown['total_adults_vat'], 0, ',', '.') }}đ</span>
                                     </div>
                                     <div class="d-flex flex-between">
                                         <span>Phí dịch vụ</span>
-                                        <span>{{ number_format($booking->total_amount * 0.05, 0, ',', '.') }}đ</span>
+                                        <span>{{ number_format($priceBreakdown['total_adults_service'], 0, ',', '.') }}đ</span>
                                     </div>
                                 </div>
                             </details>
@@ -256,17 +256,21 @@
                                     <summary class="d-flex flex-between align-center" style="list-style: none; outline: none;">
                                         <span style="font-weight: 500;">Trẻ em (x{{ $booking->child_count }})</span>
                                         <span
-                                            class="text-bold">{{ number_format($booking->total_amount * 0.15, 0, ',', '.') }}đ</span>
+                                            class="text-bold">{{ number_format($priceBreakdown['total_children_full'], 0, ',', '.') }}đ</span>
                                     </summary>
                                     <div
                                         style="padding: 10px 0 5px 15px; font-size: 13px; color: #666; border-left: 2px solid #eee; margin: 5px 0 10px 5px;">
                                         <div class="d-flex flex-between mb-5">
-                                            <span>Giá vé cơ bản</span>
-                                            <span>{{ number_format($booking->total_amount * 0.1, 0, ',', '.') }}đ</span>
+                                            <span>Giá vé cơ bản (90%)</span>
+                                            <span>{{ number_format($priceBreakdown['total_children_base'], 0, ',', '.') }}đ</span>
+                                        </div>
+                                        <div class="d-flex flex-between mb-5">
+                                            <span>Thuế VAT (10%)</span>
+                                            <span>{{ number_format($priceBreakdown['total_children_vat'], 0, ',', '.') }}đ</span>
                                         </div>
                                         <div class="d-flex flex-between">
-                                            <span>Thuế & Phí</span>
-                                            <span>{{ number_format($booking->total_amount * 0.05, 0, ',', '.') }}đ</span>
+                                            <span>Phí dịch vụ</span>
+                                            <span>{{ number_format($priceBreakdown['total_children_service'], 0, ',', '.') }}đ</span>
                                         </div>
                                     </div>
                                 </details>
@@ -277,28 +281,39 @@
                                     <summary class="d-flex flex-between align-center" style="list-style: none; outline: none;">
                                         <span style="font-weight: 500;">Em bé (x{{ $booking->infant_count }})</span>
                                         <span
-                                            class="text-bold">{{ number_format($booking->total_amount * 0.05, 0, ',', '.') }}đ</span>
+                                            class="text-bold">{{ number_format($priceBreakdown['total_infant_full'], 0, ',', '.') }}đ</span>
                                     </summary>
                                     <div
                                         style="padding: 10px 0 5px 15px; font-size: 13px; color: #666; border-left: 2px solid #eee; margin: 5px 0 10px 5px;">
+                                        <div class="d-flex flex-between mb-5">
+                                            <span>Giá vé cơ bản (10%)</span>
+                                            <span>{{ number_format($priceBreakdown['total_infants_base'], 0, ',', '.') }}đ</span>
+                                        </div>
+                                        <div class="d-flex flex-between mb-5">
+                                            <span>Thuế VAT (10%)</span>
+                                            <span>{{ number_format($priceBreakdown['total_infants_vat'], 0, ',', '.') }}đ</span>
+                                        </div>
                                         <div class="d-flex flex-between">
-                                            <span>Phí vận chuyển em bé</span>
-                                            <span>{{ number_format($booking->total_amount * 0.05, 0, ',', '.') }}đ</span>
+                                            <span>Phí dịch vụ</span>
+                                            <span>{{ number_format($priceBreakdown['total_infants_service'], 0, ',', '.') }}đ</span>
                                         </div>
                                     </div>
                                 </details>
                             @endif
 
-                            <div class="price-row d-flex flex-between mb-10 text-muted font-size-12"
-                                style="padding-left: 17px;">
-                                <span>Phí hệ thống (Vat)</span>
-                                <span>{{ number_format($booking->total_amount * 0.1, 0, ',', '.') }}đ</span>
-                            </div>
-
                             <hr style="border: none; border-top: 1px dashed #eee; margin: 15px 0;">
 
+                            @if($priceBreakdown['grand_total'] != $booking->total_amount)
+                                <div class="price-row d-flex flex-between align-center mb-10">
+                                    <span style="font-size: 12px; color: #888;">Giá theo công thức</span>
+                                    <span style="font-size: 14px; color: #888; text-decoration: line-through;">
+                                        {{ number_format($priceBreakdown['grand_total'], 0, ',', '.') }}đ
+                                    </span>
+                                </div>
+                            @endif
+
                             <div class="price-row d-flex flex-between align-center">
-                                <span class="text-bold">TỔNG CỘNG</span>
+                                <span class="text-bold">TỔNG CỘNG (đã thu)</span>
                                 <span style="font-size: 20px; font-weight: 800; color: #d84a1d;">
                                     {{ number_format($booking->total_amount, 0, ',', '.') }}đ
                                 </span>

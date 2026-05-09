@@ -14,6 +14,8 @@ class AppBooking extends Model
         'user_id',
         'flight_type',
         'ticket_class',
+        'outbound_class',
+        'return_class',
         'outbound_flight_id',
         'return_flight_id',
         'adult_count',

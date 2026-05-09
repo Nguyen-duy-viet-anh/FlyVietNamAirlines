@@ -24,6 +24,8 @@
             @csrf
             {{-- Hidden Fields for Booking Context --}}
             <input type="hidden" name="ticket_class" value="{{ $bookingData['ticket_class'] ?? 'economy' }}">
+            <input type="hidden" name="outbound_class" value="{{ $bookingData['outbound_class'] ?? $bookingData['ticket_class'] ?? 'economy' }}">
+            <input type="hidden" name="return_class" value="{{ $bookingData['return_class'] ?? $bookingData['ticket_class'] ?? 'economy' }}">
             <input type="hidden" name="flight_type" value="{{ $bookingData['flight_type'] }}">
             <input type="hidden" name="outbound_flight_id" value="{{ $bookingData['outbound_flight_id'] }}">
             <input type="hidden" name="return_flight_id" value="{{ $bookingData['return_flight_id'] ?? '' }}">

@@ -2,9 +2,10 @@
     $searchDate = \Carbon\Carbon::parse($step == 'return' ? request('return_date') : request('departure_date', now()));
     
     // Nếu đang chọn chiều về, phải giữ lại outbound_flight_id trong link chuyển ngày
-    $excludeParams = ['ticket_class', 'return_flight_id'];
+    $excludeParams = ['ticket_class', 'return_flight_id', 'return_class'];
     if ($step != 'return') {
         $excludeParams[] = 'outbound_flight_id';
+        $excludeParams[] = 'outbound_class';
     }
     
     $baseParams = request()->except($excludeParams);
@@ -75,11 +76,13 @@
                     @if ($flight->economy_available > 0)
                         @php
                             $targetRoute = 'flights.search';
+                            $classParams = $step == 'return'
+                                ? ['return_class' => 'economy', 'ticket_class' => 'economy', 'outbound_class' => request('outbound_class', 'economy')]
+                                : ['outbound_class' => 'economy', 'ticket_class' => 'economy'];
                             $finalParams = array_merge($baseParams, [
                                 'outbound_flight_id' => $step == 'return' ? $outboundFlightId : $flight->id,
                                 'return_flight_id' => $step == 'return' ? $flight->id : null,
-                                'ticket_class' => 'economy'
-                            ]);
+                            ], $classParams);
                         @endphp
                         <a href="{{ route($targetRoute, $finalParams) }}" class="fare-select-btn">
                             <div class="fare-radio-ui"></div>
@@ -95,11 +98,13 @@
                 <td class="fare-col">
                     @if ($flight->business_available > 0)
                         @php
+                            $classParams = $step == 'return'
+                                ? ['return_class' => 'business', 'ticket_class' => 'business', 'outbound_class' => request('outbound_class', 'economy')]
+                                : ['outbound_class' => 'business', 'ticket_class' => 'business'];
                             $finalParams = array_merge($baseParams, [
                                 'outbound_flight_id' => $step == 'return' ? $outboundFlightId : $flight->id,
                                 'return_flight_id' => $step == 'return' ? $flight->id : null,
-                                'ticket_class' => 'business'
-                            ]);
+                            ], $classParams);
                         @endphp
                         <a href="{{ route($targetRoute, $finalParams) }}" class="fare-select-btn">
                             <div class="fare-radio-ui"></div>

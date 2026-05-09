@@ -7,7 +7,7 @@
 
         @php
             // Reset EVERYTHING when re-selecting outbound
-            $reselectOutboundParams = request()->except(['outbound_flight_id', 'return_flight_id', 'ticket_class']);
+            $reselectOutboundParams = request()->except(['outbound_flight_id', 'return_flight_id', 'ticket_class', 'outbound_class', 'return_class']);
         @endphp
         <a href="{{ route('flights.search', $reselectOutboundParams) }}" class="reselect-link">Chọn lại</a>
 
@@ -62,7 +62,7 @@
                         </div>
                     </div>
                     <div style="font-weight: 700; color: #003366; font-size: 18px; min-width: 90px; text-align: right;">
-                        {{ $classMap[request('ticket_class', 'economy')] ?? request('ticket_class') }}
+                        {{ $classMap[request('outbound_class', request('ticket_class', 'economy'))] ?? request('ticket_class') }}
                     </div>
                 </div>
             </div>
@@ -79,7 +79,7 @@
 
         @php
             // Only reset return selection
-            $reselectReturnParams = request()->except(['return_flight_id']);
+            $reselectReturnParams = request()->except(['return_flight_id', 'return_class', 'ticket_class']);
             $classMap = ['economy' => 'Phổ thông', 'business' => 'Thương gia'];
         @endphp
         <a href="{{ route('flights.search', $reselectReturnParams) }}" class="reselect-link">Chọn lại</a>
@@ -132,7 +132,7 @@
                         </div>
                     </div>
                     <div style="font-weight: 700; color: #003366; font-size: 18px; min-width: 90px; text-align: right;">
-                        {{ $classMap[request('ticket_class', 'economy')] ?? request('ticket_class') }}
+                        {{ $classMap[request('return_class', request('ticket_class', 'economy'))] ?? request('ticket_class') }}
                     </div>
                 </div>
             </div>

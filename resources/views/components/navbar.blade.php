@@ -55,7 +55,7 @@
                     <a href="{{ route('my.bookings') }}" class="dropdown-item">Vé của tôi</a>
                 @endauth
                 <a href="{{ route('booking.mybooking') }}" class="dropdown-item">Tra cứu vé</a>
-                <a href="{{ route('booking.mybooking') }}" class="dropdown-item">Hoàn tiền vé</a>
+                <a href="{{ route('booking.mybooking', ['type' => 'refund']) }}" class="dropdown-item">Hoàn tiền vé</a>
             </div>
         </div>
         
