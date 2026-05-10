@@ -8,7 +8,7 @@ use Illuminate\Queue\SerializesModels;
 use App\Models\Refund;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
-
+// Gửi thông báo hoàn tiền --- Cái này user gửi admin nhận
 class RefundCompletedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;

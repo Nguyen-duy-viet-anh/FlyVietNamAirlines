@@ -40,7 +40,21 @@ class HomeController extends Controller
                 return $flight;
             });
 
-        return view('home', compact('airports', 'popularRoutes'));
+        // Lấy danh sách điểm đến nổi bật cho lưới (9 điểm đến)
+        $featuredDestinations = Airport::whereNotNull('image')
+            ->inRandomOrder()
+            ->take(9)
+            ->get();
+
+        // Nếu không đủ sân bay có ảnh, lấy thêm sân bay bất kỳ
+        if ($featuredDestinations->count() < 9) {
+            $extra = Airport::whereNotIn('id', $featuredDestinations->pluck('id'))
+                ->take(9 - $featuredDestinations->count())
+                ->get();
+            $featuredDestinations = $featuredDestinations->concat($extra);
+        }
+
+        return view('home', compact('airports', 'popularRoutes', 'featuredDestinations'));
     }
 
     public function subscribeNewsletter(Request $request)

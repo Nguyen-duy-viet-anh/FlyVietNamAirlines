@@ -8,8 +8,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
-
+// Xác nhận đặt vé thành công
 class BookingConfirmed extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;

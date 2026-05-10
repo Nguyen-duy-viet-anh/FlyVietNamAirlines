@@ -13,7 +13,7 @@ class CheckAdmin
     {
         $allowedRoles = ['admin', 'admin_booking', 'admin_airport', 'super_admin'];
 
-        // Kiểm tra xem user đã đăng nhập chưa và có role thuộc nhóm admin không (không phân biệt hoa thường)
+        // Kiểm tra xem user đã đăng nhập chưa và có role thuộc nhóm admin không
         if (Auth::check() && in_array(strtolower(Auth::user()->role), $allowedRoles, true)) {
             return $next($request);
         }

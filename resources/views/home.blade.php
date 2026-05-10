@@ -19,6 +19,9 @@
     </script>
 @section('content')
     @include('layouts.search.popular_offers', ['popularRoutes' => $popularRoutes])
+    @include('layouts.search.destination')
+    @include('layouts.search.extra_service')
+    @include('layouts.search.partners')
 @endsection
 
 @section('scripts')

@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
-
+// Admin gửi thông báo 
 class AdminNotification extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;

@@ -1,10 +1,10 @@
 /**
- * Flight Helper JS - Enhanced with passenger counts and airport exclusion + date restriction
+ * Flight Helper JS — Mở rộng: quản lý số lượng hành khách, loại trừ sân bay trùng và ràng buộc ngày
  */
 
-// ===== UI Helpers =====
-// - Toggle dropdowns, format currency, toggle mobile menu
-/** Toggle dropdown (hiện/ẩn) */
+// ===== Trợ giúp giao diện (UI) =====
+// - Chuyển đổi dropdown, định dạng tiền tệ, bật/tắt menu di động
+/** Chuyển đổi dropdown (hiện/ẩn) */
 function toggleDropdown(targetId) {
     const element = document.getElementById(targetId);
     if (!element) return;
@@ -16,16 +16,16 @@ function formatCurrencyVN(number) {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-/** Toggle mobile menu */
+/** Chuyển đổi menu di động */
 function toggleMenu() {
     const menu = document.querySelector('.navbar .menu');
     if (!menu) return;
     menu.style.display = menu.style.display === 'flex' || menu.style.display === 'block' ? 'none' : 'flex';
 }
 
-// ===== Airport Helpers =====
-// - Swap, update options and keep origin/destination exclusive
-/** Swap origin and destination select values */
+// ===== Trợ giúp sân bay =====
+// - Hoán đổi, cập nhật option và giữ origin/destination không trùng nhau
+/** Hoán đổi giá trị select nguồn và đích */
 function swapAirports(form = document) {
     const origin = form.querySelector('select[name="origin_id"]');
     const destination = form.querySelector('select[name="destination_id"]');
@@ -53,7 +53,7 @@ function swapAirports(form = document) {
     }
 }
 
-/** Update airport options by hiding (removing) conflicting option from full list */
+/** Cập nhật option sân bay bằng cách ẩn (loại bỏ) option xung đột khỏi danh sách đầy đủ */
 function updateAirportOptions(targetSelect, excludeValue) {
     if (!targetSelect) return;
 
@@ -64,7 +64,7 @@ function updateAirportOptions(targetSelect, excludeValue) {
     let fullOptions = window.airportFullOptions || [];
     
     if (fullOptions.length === 0) {
-        // Fallback: Build full options list from both origin/destination selects if global list missing
+        // Dự phòng: xây dựng danh sách đầy đủ từ cả hai select origin/destination nếu danh sách toàn cục thiếu
         try {
             const opts = Array.from(document.querySelectorAll('#origin_id option, #destination_id option'));
             const mapped = opts.map(o => ({ value: o.value, text: o.text })).filter(o => o.value !== '');
@@ -81,7 +81,7 @@ function updateAirportOptions(targetSelect, excludeValue) {
         }
     }
 
-    // Rebuild: placeholder + all except exclude
+    // Xây dựng lại: placeholder + tất cả trừ giá trị bị loại trừ
     targetSelect.innerHTML = `<option value="">${placeholderText}</option>`;
 
     (fullOptions || []).forEach(originalOpt => {
@@ -92,8 +92,8 @@ function updateAirportOptions(targetSelect, excludeValue) {
     });
 }
 
-// ===== Passenger Helpers =====
-// - Update child/infant options and validate counts
+// ===== Trợ giúp hành khách =====
+// - Cập nhật option trẻ em/sơ sinh và kiểm tra số lượng
 function updateAdultOptions(adultSelect, childCount = 0, infantCount = 0) {
     if (!adultSelect) return;
     const currentValue = parseInt(adultSelect.value) || 1;
@@ -136,7 +136,7 @@ function updateInfantOptions(infantSelect, adultCount, childCount = 0) {
     }
 }
 
-/** Validate passenger counts: infants <= adults; total passengers <= 9 */
+/** Kiểm tra số lượng hành khách: sơ sinh <= người lớn; tổng hành khách <= 9 */
 function validatePassengerCounts(form) {
     const adultSelect = form.querySelector('#adult_count');
     const childSelect = form.querySelector('#child_count');
@@ -169,16 +169,16 @@ function validatePassengerCounts(form) {
     return isValid;
 }
 
-// ===== Date Helpers =====
-// - Ensure return date is strictly after departure
-/** Add days to YYYY-MM-DD string (returns YYYY-MM-DD) */
+// ===== Trợ giúp ngày tháng =====
+// - Đảm bảo ngày về không được trước ngày đi
+/** Thêm ngày vào chuỗi YYYY-MM-DD (trả về YYYY-MM-DD) */
 function addDays(dateStr, days) {
     const d = new Date(dateStr);
     d.setDate(d.getDate() + days);
     return d.toISOString().slice(0,10);
 }
 
-/** Sync return date min to departure date (return >= departure) */
+/** Đồng bộ giá trị min ngày về theo ngày đi (return >= departure) */
 function syncReturnDate(departureInput, returnInput) {
     if (!departureInput || !returnInput) return;
     const departValue = departureInput.value;
@@ -190,12 +190,12 @@ function syncReturnDate(departureInput, returnInput) {
             returnInput.value = departValue;
         }
     } else {
-        // when no departure selected, allow return from today (or server-provided min)
+        // khi chưa chọn ngày đi, cho phép ngày về bắt đầu từ hôm nay (hoặc min do server cung cấp)
         returnInput.min = departureInput.min || new Date().toISOString().slice(0,10);
     }
 }
 
-/** Validate departure/return dates: return must not be before departure */
+/** Kiểm tra ngày đi/ngày về: ngày về không được trước ngày đi */
 function validateDates(form) {
     const departInput = form.querySelector('input[name="departure_date"]');
     const returnInput = form.querySelector('input[name="return_date"]');
@@ -212,7 +212,7 @@ function validateDates(form) {
     return true;
 }
 
-// ===== Initialization =====
+// ===== Khởi tạo =====
 document.addEventListener('DOMContentLoaded', function() {
     console.log('flightHelper.js: DOMContentLoaded triggered');
     
@@ -291,7 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
             destinationSelect.addEventListener('change', function() {
                 updateAirportOptions(originSelect, this.value);
             });
-            // Initial state
+            // Trạng thái ban đầu
             updateAirportOptions(destinationSelect, originSelect.value);
             updateAirportOptions(originSelect, destinationSelect.value);
         }

@@ -11,7 +11,7 @@ class FlightPriceHelper
     const SERVICE_FEE_PER_PERSON = 50000;  // Phí xuất vé của Đại lý (mỗi chặng)
     const INFANT_FIXED_FEE = 150000;      // Phí em bé cố định (nếu không dùng % giá vé)
     const CHILD_BASE_PERCENT = 0.9;       // Trẻ em hưởng 90% giá gốc người lớn
-    const BUSINESS_MULTIPLIER = 1.5;      // Thương gia nhân 1.5
+    const BUSINESS_MULTIPLIER = 1.5;      // Thương gia x 1.5
     const VAT_RATE = 0.1;                 // Thuế giá trị gia tăng 10%
 
     /**

@@ -39,10 +39,10 @@
                                 <div class="offer-meta">
                                     <span><i class="fas fa-plane"></i> {{ $route->trip_type == 'one_way' ? 'One Way' : 'Round Trip' }}</span>
                                 </div>
-                                <div class="offer-price">
+                                {{-- <div class="offer-price">
                                     <span>From</span>
                                     <span class="price-val">VND {{ number_format($route->display_price, 0, ',', '.') }}</span>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                     @endforeach

@@ -72,8 +72,10 @@ class BookingController extends Controller
             'passenger_email' => 'nullable|email',
             'passengers' => 'nullable|array',
         ]);
+        // chống tạo trùng khi user spam thanh toán
         $idempotencyKey = $request->header('Idempotency-Key') ?? $request->input('idempotency_key');
 
+        // nếu có key thì check booking 
         if ($idempotencyKey) {
             $existingBooking = AppBooking::with('transaction')
                 ->where('idempotency_key', $idempotencyKey)
@@ -87,7 +89,7 @@ class BookingController extends Controller
                 return $this->createVNPayUrl($existingBooking, $existingBooking->transaction->transaction_code);
             }
         }
-
+        // kiểm tra thông tin , nếu có lỗi roll back toàn bộ
         try {
             $bookingPayload = DB::transaction(function () use ($request, $idempotencyKey) {
                 $ticketClass = $request->ticket_class ?? 'economy';
@@ -308,7 +310,7 @@ class BookingController extends Controller
     {
         // 1. Dữ liệu khách hàng
         $passengerData = $request->all();
-        $bookingData = $request->all(); // Tạo thêm biến này để khớp với tên gọi ở View của bạn
+        $bookingData = $request->all();
 
         // 2. Lấy thông tin chuyến bay
         $outboundFlight = \App\Models\Flight::with(['airline', 'origin', 'destination'])

@@ -9,6 +9,7 @@ use App\Models\Refund;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
 
+// Gửi thông báo hoàn tiền -- admin gửi yêu cầu hoàn tiền cho user
 class RefundRequestMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
@@ -32,7 +33,7 @@ class RefundRequestMail extends Mailable implements ShouldQueue
 
         $m = $this->subject($subject);
 
-        // Set reply-to to the requester if present, otherwise to passenger email so admin can reply directly
+        // trả lời về email người yêu cầu nếu có
         $replyEmail = $this->refund->requester->email ?? $this->refund->booking->passenger_email ?? null;
         $replyName = $this->refund->requester->name ?? $this->refund->booking->passenger_name ?? null;
 

@@ -88,7 +88,7 @@
 
                 <div class="form-actions" style="display: flex; gap: 15px; margin-top: 20px;">
                     @if(request('type') === 'refund')
-                        <button type="submit" name="action" value="refund" class="btn-send btn-primary" style="flex: 1;">GỬI YÊU
+                        <button type="submit" name="action" value="refund" class="btn-send btn-primary" style="flex: 1;padding: 10px 0px">GỬI YÊU
                             CẦU HOÀN</button>
                     @else
                         <button type="submit" name="action" value="lookup" class="btn-send btn-primary" style="flex: 1;padding: 15px">TRA CỨU
